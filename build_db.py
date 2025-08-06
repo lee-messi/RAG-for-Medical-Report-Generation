@@ -179,9 +179,13 @@ def create_similarity_matrix(labels):
     
     return sim_dict
 
-def compare_embeddings_by_organs(original_emb, projected_emb, labels):
+def compare_embeddings_by_organs(original_emb, projected_emb, labels, projected_labels=None):
     """장기별 임베딩 비교 (원본 vs 투영)"""
     print(f"\n=== ORGAN COMPARISON: ORIGINAL vs PROJECTED ===")
+    
+    # projected_labels가 제공되지 않으면 labels 사용 (기존 호출 방식 지원)
+    if projected_labels is None:
+        projected_labels = labels
     
     # 텐서를 numpy로 변환
     if torch.is_tensor(original_emb):
@@ -194,10 +198,15 @@ def compare_embeddings_by_organs(original_emb, projected_emb, labels):
     else:
         proj_np = projected_emb
     
-    # 장기 라벨 생성
-    organ_labels = [label.split('_')[0] for label in labels]
-    organ_counts = Counter(organ_labels)
-    top_organs = [organ for organ, _ in organ_counts.most_common(8)]
+    # 장기 라벨 생성 (각각 다른 labels 사용)
+    orig_organ_labels = [label.split('_')[0] for label in labels]
+    proj_organ_labels = [label.split('_')[0] for label in projected_labels]
+    
+    # 공통 장기들만 선택
+    orig_organ_counts = Counter(orig_organ_labels)
+    proj_organ_counts = Counter(proj_organ_labels)
+    common_organs = set(orig_organ_counts.keys()) & set(proj_organ_counts.keys())
+    top_organs = sorted(list(common_organs))[:8]
     
     # PCA 적용
     pca_orig = PCA(n_components=2)
@@ -213,9 +222,9 @@ def compare_embeddings_by_organs(original_emb, projected_emb, labels):
     # 원본 임베딩
     plt.subplot(1, 2, 1)
     for i, organ in enumerate(top_organs):
-        mask = np.array(organ_labels) == organ
+        mask = np.array(orig_organ_labels) == organ  # labels 기반
         plt.scatter(orig_2d[mask, 0], orig_2d[mask, 1], 
-                   c=[colors[i]], label=f"{organ} ({organ_counts[organ]})", 
+                   c=[colors[i]], label=f"{organ} ({orig_organ_counts[organ]})", 
                    alpha=0.7, s=20)
     
     plt.xlabel(f'PC1 ({pca_orig.explained_variance_ratio_[0]:.1%})')
@@ -227,9 +236,9 @@ def compare_embeddings_by_organs(original_emb, projected_emb, labels):
     # 투영된 임베딩
     plt.subplot(1, 2, 2)
     for i, organ in enumerate(top_organs):
-        mask = np.array(organ_labels) == organ
+        mask = np.array(proj_organ_labels) == organ  # projected_labels 기반
         plt.scatter(proj_2d[mask, 0], proj_2d[mask, 1], 
-                   c=[colors[i]], label=f"{organ} ({organ_counts[organ]})", 
+                   c=[colors[i]], label=f"{organ} ({proj_organ_counts[organ]})", 
                    alpha=0.7, s=20)
     
     plt.xlabel(f'PC1 ({pca_proj.explained_variance_ratio_[0]:.1%})')
@@ -246,9 +255,13 @@ def compare_embeddings_by_organs(original_emb, projected_emb, labels):
     print(f"Saved organ comparison: {filename}")
     return filename
 
-def compare_embeddings_by_labels(original_emb, projected_emb, labels):
+def compare_embeddings_by_labels(original_emb, projected_emb, labels, projected_labels=None):
     """상위 20개 라벨별 임베딩 비교 (원본 vs 투영)"""
     print(f"\n=== LABEL COMPARISON: ORIGINAL vs PROJECTED (Top 20) ===")
+    
+    # projected_labels가 제공되지 않으면 labels 사용 (기존 호출 방식 지원)
+    if projected_labels is None:
+        projected_labels = labels
     
     # 텐서를 numpy로 변환
     if torch.is_tensor(original_emb):
@@ -261,14 +274,20 @@ def compare_embeddings_by_labels(original_emb, projected_emb, labels):
     else:
         proj_np = projected_emb
     
-    # 상위 20개 라벨
-    label_counts = Counter(labels)
-    # top_labels = [label for label, _ in label_counts.most_common(20)]
-    top_labels = sorted([label for label, _ in label_counts.most_common(20)])
+    # 공통 라벨들 찾기
+    orig_counts = Counter(labels)
+    proj_counts = Counter(projected_labels)
+    common_labels = set(orig_counts.keys()) & set(proj_counts.keys())
     
-    print(f"Top 20 labels:")
-    for i, (label, count) in enumerate(label_counts.most_common(20)):
-        print(f"  {i+1:2d}. {label}: {count}")
+    # 공통 라벨 중 상위 20개 (원본 기준)
+    top_labels = sorted([label for label in common_labels 
+                        if orig_counts[label] >= 2])[:20]  # 최소 2개 이상
+    
+    print(f"Top labels (common in both):")
+    for i, label in enumerate(top_labels):
+        orig_count = orig_counts[label]
+        proj_count = proj_counts[label]
+        print(f"  {i+1:2d}. {label}: orig={orig_count}, proj={proj_count}")
     
     # PCA 적용
     pca_orig = PCA(n_components=2)
@@ -284,10 +303,11 @@ def compare_embeddings_by_labels(original_emb, projected_emb, labels):
     # 원본 임베딩
     plt.subplot(1, 2, 1)
     for i, label in enumerate(top_labels):
-        mask = np.array(labels) == label
-        plt.scatter(orig_2d[mask, 0], orig_2d[mask, 1], 
-                   c=[colors[i]], label=f"{label[:12]}... ({label_counts[label]})", 
-                   alpha=0.7, s=15)
+        mask = np.array(labels) == label  # labels 기반
+        if mask.sum() > 0:  # 해당 라벨이 있는지 확인
+            plt.scatter(orig_2d[mask, 0], orig_2d[mask, 1], 
+                       c=[colors[i]], label=f"{label[:12]}... ({orig_counts[label]})", 
+                       alpha=0.7, s=15)
     
     plt.xlabel(f'PC1 ({pca_orig.explained_variance_ratio_[0]:.1%})')
     plt.ylabel(f'PC2 ({pca_orig.explained_variance_ratio_[1]:.1%})')
@@ -298,10 +318,11 @@ def compare_embeddings_by_labels(original_emb, projected_emb, labels):
     # 투영된 임베딩
     plt.subplot(1, 2, 2)
     for i, label in enumerate(top_labels):
-        mask = np.array(labels) == label
-        plt.scatter(proj_2d[mask, 0], proj_2d[mask, 1], 
-                   c=[colors[i]], label=f"{label[:12]}... ({label_counts[label]})", 
-                   alpha=0.7, s=15)
+        mask = np.array(projected_labels) == label  # projected_labels 기반
+        if mask.sum() > 0:  # 해당 라벨이 있는지 확인
+            plt.scatter(proj_2d[mask, 0], proj_2d[mask, 1], 
+                       c=[colors[i]], label=f"{label[:12]}... ({proj_counts[label]})", 
+                       alpha=0.7, s=15)
     
     plt.xlabel(f'PC1 ({pca_proj.explained_variance_ratio_[0]:.1%})')
     plt.ylabel(f'PC2 ({pca_proj.explained_variance_ratio_[1]:.1%})')
@@ -375,7 +396,7 @@ def visualize_similarity_matrix(labels, sample_size=10):
     plt.title('Label Similarity Matrix (Sample)')
     plt.tight_layout()
     
-    plt.savefig('similarity_matrix.png', dpi=300, bbox_inches='tight')
+    # plt.savefig('similarity_matrix.png', dpi=300, bbox_inches='tight')
     plt.show()
     
     # 통계 정보
@@ -587,7 +608,7 @@ def train_model(embeddings, labels, epochs=100, batch_size=64):
             if avg_loss < best_loss and not (torch.isnan(torch.tensor(avg_loss)) or torch.isinf(torch.tensor(avg_loss))):
                 best_loss = avg_loss
                 torch.save({'model': model.state_dict(), 'sim_dict': sim_dict}, 
-                          'best_model.pth')
+                          'model/best_model.pth')
             
             if epoch % 20 == 0:
                 print(f'Epoch {epoch}, Loss: {avg_loss:.4f}, Batches: {n_batches}')
@@ -621,9 +642,14 @@ def build_db(proj_emb, reports, labels, item_ids, db_path="./medical_db"):
     print(f"Database built: {db_path}")
     return db_path
 
-def compare_embeddings_by_organs(original_emb, projected_emb, labels):
+
+def compare_embeddings_by_organs(original_emb, projected_emb, labels, projected_labels=None):
     """장기별 임베딩 비교 (원본 vs 투영)"""
     print(f"\n=== ORGAN COMPARISON: ORIGINAL vs PROJECTED ===")
+    
+    # projected_labels가 제공되지 않으면 labels 사용 (기존 호출 방식 지원)
+    if projected_labels is None:
+        projected_labels = labels
     
     # 텐서를 numpy로 변환
     if torch.is_tensor(original_emb):
@@ -636,10 +662,15 @@ def compare_embeddings_by_organs(original_emb, projected_emb, labels):
     else:
         proj_np = projected_emb
     
-    # 장기 라벨 생성
-    organ_labels = [label.split('_')[0] for label in labels]
-    organ_counts = Counter(organ_labels)
-    top_organs = [organ for organ, _ in organ_counts.most_common(8)]
+    # 장기 라벨 생성 (각각 다른 labels 사용)
+    orig_organ_labels = [label.split('_')[0] for label in labels]
+    proj_organ_labels = [label.split('_')[0] for label in projected_labels]
+    
+    # 공통 장기들만 선택
+    orig_organ_counts = Counter(orig_organ_labels)
+    proj_organ_counts = Counter(proj_organ_labels)
+    common_organs = set(orig_organ_counts.keys()) & set(proj_organ_counts.keys())
+    top_organs = sorted(list(common_organs))[:8]
     
     # PCA 적용
     pca_orig = PCA(n_components=2)
@@ -655,9 +686,9 @@ def compare_embeddings_by_organs(original_emb, projected_emb, labels):
     # 원본 임베딩
     plt.subplot(1, 2, 1)
     for i, organ in enumerate(top_organs):
-        mask = np.array(organ_labels) == organ
+        mask = np.array(orig_organ_labels) == organ  # labels 기반
         plt.scatter(orig_2d[mask, 0], orig_2d[mask, 1], 
-                   c=[colors[i]], label=f"{organ} ({organ_counts[organ]})", 
+                   c=[colors[i]], label=f"{organ} ({orig_organ_counts[organ]})", 
                    alpha=0.7, s=20)
     
     plt.xlabel(f'PC1 ({pca_orig.explained_variance_ratio_[0]:.1%})')
@@ -669,9 +700,9 @@ def compare_embeddings_by_organs(original_emb, projected_emb, labels):
     # 투영된 임베딩
     plt.subplot(1, 2, 2)
     for i, organ in enumerate(top_organs):
-        mask = np.array(organ_labels) == organ
+        mask = np.array(proj_organ_labels) == organ  # projected_labels 기반
         plt.scatter(proj_2d[mask, 0], proj_2d[mask, 1], 
-                   c=[colors[i]], label=f"{organ} ({organ_counts[organ]})", 
+                   c=[colors[i]], label=f"{organ} ({proj_organ_counts[organ]})", 
                    alpha=0.7, s=20)
     
     plt.xlabel(f'PC1 ({pca_proj.explained_variance_ratio_[0]:.1%})')
@@ -688,9 +719,13 @@ def compare_embeddings_by_organs(original_emb, projected_emb, labels):
     print(f"Saved organ comparison: {filename}")
     return filename
 
-def compare_embeddings_by_labels(original_emb, projected_emb, labels):
+def compare_embeddings_by_labels(original_emb, projected_emb, labels, projected_labels=None):
     """상위 20개 라벨별 임베딩 비교 (원본 vs 투영)"""
     print(f"\n=== LABEL COMPARISON: ORIGINAL vs PROJECTED (Top 20) ===")
+    
+    # projected_labels가 제공되지 않으면 labels 사용 (기존 호출 방식 지원)
+    if projected_labels is None:
+        projected_labels = labels
     
     # 텐서를 numpy로 변환
     if torch.is_tensor(original_emb):
@@ -703,14 +738,20 @@ def compare_embeddings_by_labels(original_emb, projected_emb, labels):
     else:
         proj_np = projected_emb
     
-    # 상위 20개 라벨
-    label_counts = Counter(labels)
-    top_labels = sorted([label for label, _ in label_counts.most_common(20)])
-
-    print(f"Top 20 labels:")
+    # 공통 라벨들 찾기
+    orig_counts = Counter(labels)
+    proj_counts = Counter(projected_labels)
+    common_labels = set(orig_counts.keys()) & set(proj_counts.keys())
+    
+    # 공통 라벨 중 상위 20개 (원본 기준)
+    top_labels = sorted([label for label in common_labels 
+                        if orig_counts[label] >= 2])[:20]  # 최소 2개 이상
+    
+    print(f"Top labels (common in both):")
     for i, label in enumerate(top_labels):
-        count = label_counts[label]
-        print(f"  {i+1:2d}. {label}: {count}")
+        orig_count = orig_counts[label]
+        proj_count = proj_counts[label]
+        print(f"  {i+1:2d}. {label}: orig={orig_count}, proj={proj_count}")
     
     # PCA 적용
     pca_orig = PCA(n_components=2)
@@ -726,10 +767,11 @@ def compare_embeddings_by_labels(original_emb, projected_emb, labels):
     # 원본 임베딩
     plt.subplot(1, 2, 1)
     for i, label in enumerate(top_labels):
-        mask = np.array(labels) == label
-        plt.scatter(orig_2d[mask, 0], orig_2d[mask, 1], 
-                   c=[colors[i]], label=f"{label[:12]}... ({label_counts[label]})", 
-                   alpha=0.7, s=15)
+        mask = np.array(labels) == label  # labels 기반
+        if mask.sum() > 0:  # 해당 라벨이 있는지 확인
+            plt.scatter(orig_2d[mask, 0], orig_2d[mask, 1], 
+                       c=[colors[i]], label=f"{label[:12]}... ({orig_counts[label]})", 
+                       alpha=0.7, s=15)
     
     plt.xlabel(f'PC1 ({pca_orig.explained_variance_ratio_[0]:.1%})')
     plt.ylabel(f'PC2 ({pca_orig.explained_variance_ratio_[1]:.1%})')
@@ -740,10 +782,11 @@ def compare_embeddings_by_labels(original_emb, projected_emb, labels):
     # 투영된 임베딩
     plt.subplot(1, 2, 2)
     for i, label in enumerate(top_labels):
-        mask = np.array(labels) == label
-        plt.scatter(proj_2d[mask, 0], proj_2d[mask, 1], 
-                   c=[colors[i]], label=f"{label[:12]}... ({label_counts[label]})", 
-                   alpha=0.7, s=15)
+        mask = np.array(projected_labels) == label  # projected_labels 기반
+        if mask.sum() > 0:  # 해당 라벨이 있는지 확인
+            plt.scatter(proj_2d[mask, 0], proj_2d[mask, 1], 
+                       c=[colors[i]], label=f"{label[:12]}... ({proj_counts[label]})", 
+                       alpha=0.7, s=15)
     
     plt.xlabel(f'PC1 ({pca_proj.explained_variance_ratio_[0]:.1%})')
     plt.ylabel(f'PC2 ({pca_proj.explained_variance_ratio_[1]:.1%})')
@@ -904,23 +947,26 @@ def main():
     with torch.no_grad():
         transformed = model(embeddings.to(device))
     
-    # 원본 vs 투영 비교 시각화
+    # 원본 vs 투영 비교 (기존 방식)
     organ_comp_file = compare_embeddings_by_organs(embeddings, transformed, labels)
     label_comp_file = compare_embeddings_by_labels(embeddings, transformed, labels)
 
-    # 2. 필터링
-    filtered, filtered_reports, filtered_labels, filtered_ids = filter_outliers_by_label(transformed, labels, reports, item_ids)
+    # 필터링
+    filtered, filtered_reports, filtered_labels, filtered_ids = filter_outliers_by_label(
+        transformed, labels, reports, item_ids)
 
-    # 3. 변환된 vs 필터링된 비교  
-    organ_filtered_file = compare_embeddings_by_organs(transformed, filtered, filtered_labels)
-    label_filtered_file = compare_embeddings_by_labels(transformed, filtered, filtered_labels)
+    # 변환된 vs 필터링된 비교 - 네 번째 파라미터로 filtered_labels 전달
+    organ_filtered_file = compare_embeddings_by_organs(
+        transformed, filtered, labels, filtered_labels)
+    label_filtered_file = compare_embeddings_by_labels(
+        transformed, filtered, labels, filtered_labels)
 
     # DB 구축
     # db_path = build_db(filtered, filtered_reports, filtererd_labels, filtered_ids)
     
     # 모델 저장
     torch.save({'model': model.state_dict(), 'sim_dict': sim_dict}, 
-              'semantic_model.pth')
+              'model/semantic_model.pth')
     
     print(f"\nComplete!")
     print(f"  Model: semantic_model.pth")
