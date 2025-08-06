@@ -5,7 +5,8 @@
 병리학 특화 Foundation Model로 슬라이드 이미지에서 특징을 추출하여 벡터 형태로 Vector DB에 저장합니다. 새로운 병리 이미지가 입력되면 동일한 방식으로 특징을 추출하고, Vector DB에서 가장 유사한 기존 보고서들을 검색합니다. 검색된 보고서를 참조하여 대형언어모델이 새로운 보고서를 생성합니다.
 
 ## 시스템 구조
-병리 슬라이드 이미지 → Foundation Model 특징 추출 → Vector DB 저장/검색 → 유사 보고서 선별 → LLM 보고서 생성
+![overview](viz/overview.png)
+- 병리 슬라이드 이미지 → Foundation Model 특징 추출 → Vector DB 저장/검색 → 유사 보고서 선별 → LLM 보고서 생성
 
 ## 참가 대회
 [REG 2025](https://reg2025.grand-challenge.org/)
