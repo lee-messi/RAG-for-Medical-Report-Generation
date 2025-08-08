@@ -1,3 +1,4 @@
+import os
 import math
 import torch
 import torch.nn as nn
@@ -10,6 +11,10 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from collections import Counter
 import warnings
+import numpy as np
+from sklearn.metrics.pairwise import cosine_distances
+from collections import defaultdict
+
 warnings.filterwarnings("ignore")
 
 def load_data(json_path="train.json", npz_dir="../../reg2025/gigapath_vectors"):
@@ -146,6 +151,7 @@ def get_rouge(ref_text, hyp_text):
     f1_score = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
     return f1_score
 
+
 def compute_label_similarity(label1, label2):
     """라벨 유사도 계산"""
     tokens1 = label1.split('_')
@@ -154,17 +160,28 @@ def compute_label_similarity(label1, label2):
     if tokens1[0] != tokens2[0]:  # 다른 장기
         return 0.0
     
-    # histologic type similarity (exclude organ and procedure)
-    hist_type1 = ' '.join(tokens1[2:])  # Keep as text for BLEU/ROUGE
-    hist_type2 = ' '.join(tokens2[2:])
+    # histologic type tokens (exclude organ and procedure)
+    hist_tokens1 = tokens1[2:]
+    hist_tokens2 = tokens2[2:]
     
-    if not hist_type1 or not hist_type2:  # Empty histologic type
-        return 1.0 if hist_type1 == hist_type2 else 0.0
+    # Same histologic type tokens
+    if hist_tokens1 == hist_tokens2:
+        bleu_score = 1.0
+    # Not enough tokens for BLEU-4
+    elif len(hist_tokens1) < 4 or len(hist_tokens2) < 4:
+        bleu_score = 0.0
+    else:
+        # Enough tokens - use BLEU-4
+        hist_type1 = ' '.join(hist_tokens1)
+        hist_type2 = ' '.join(hist_tokens2)
+        bleu_score = get_bleu4(hist_type1, hist_type2)
     
-    bleu_score = get_bleu4(hist_type1, hist_type2)
+    # Always calculate ROUGE
+    hist_type1 = ' '.join(hist_tokens1)
+    hist_type2 = ' '.join(hist_tokens2)
     rouge_score = get_rouge(hist_type1, hist_type2)
     
-    return (bleu_score + rouge_score) / 2
+    return ((bleu_score + rouge_score) / 2) ** 2
 
 def create_similarity_matrix(labels):
     """유사도 매트릭스 생성"""
@@ -248,7 +265,7 @@ def compare_embeddings_by_organs(original_emb, projected_emb, labels, projected_
     plt.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    filename = 'organ_comparison.png'
+    filename = 'viz/organ_comparison.png'
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
     
@@ -259,9 +276,10 @@ def compare_embeddings_by_labels(original_emb, projected_emb, labels, projected_
     """상위 20개 라벨별 임베딩 비교 (원본 vs 투영)"""
     print(f"\n=== LABEL COMPARISON: ORIGINAL vs PROJECTED (Top 20) ===")
     
-    # projected_labels가 제공되지 않으면 labels 사용 (기존 호출 방식 지원)
     if projected_labels is None:
         projected_labels = labels
+    
+    print(f"Dataset sizes: Original={len(labels)}, Projected={len(projected_labels)}")
     
     # 텐서를 numpy로 변환
     if torch.is_tensor(original_emb):
@@ -279,15 +297,28 @@ def compare_embeddings_by_labels(original_emb, projected_emb, labels, projected_
     proj_counts = Counter(projected_labels)
     common_labels = set(orig_counts.keys()) & set(proj_counts.keys())
     
-    # 공통 라벨 중 상위 20개 (원본 기준)
-    top_labels = sorted([label for label in common_labels 
-                        if orig_counts[label] >= 2])[:20]  # 최소 2개 이상
+    print(f"Unique labels: Original={len(orig_counts)}, Projected={len(proj_counts)}, Common={len(common_labels)}")
     
-    print(f"Top labels (common in both):")
+    # 최소 샘플 수를 고정값으로 설정 (기존 계산이 너무 보수적)
+    min_samples = 5  # 고정값 사용
+    
+    # 두 데이터셋 모두에서 최소 샘플 수를 만족하는 라벨들
+    valid_labels = [label for label in common_labels 
+                   if orig_counts[label] >= min_samples and proj_counts[label] >= min_samples]
+    
+    # 두 데이터셋의 평균 빈도로 정렬
+    label_avg_counts = [(label, (orig_counts[label] + proj_counts[label]) / 2) 
+                       for label in valid_labels]
+    label_avg_counts.sort(key=lambda x: x[1], reverse=True)
+    top_labels = [label for label, _ in label_avg_counts[:20]]
+    
+    print(f"Labels with sufficient samples in both datasets (min={min_samples}):")
+    print(f"Total valid labels: {len(valid_labels)}, showing top {len(top_labels)}")
     for i, label in enumerate(top_labels):
         orig_count = orig_counts[label]
         proj_count = proj_counts[label]
-        print(f"  {i+1:2d}. {label}: orig={orig_count}, proj={proj_count}")
+        avg_count = (orig_count + proj_count) / 2
+        print(f"  {i+1:2d}. {label}: orig={orig_count}, proj={proj_count}, avg={avg_count:.1f}")
     
     # PCA 적용
     pca_orig = PCA(n_components=2)
@@ -303,8 +334,8 @@ def compare_embeddings_by_labels(original_emb, projected_emb, labels, projected_
     # 원본 임베딩
     plt.subplot(1, 2, 1)
     for i, label in enumerate(top_labels):
-        mask = np.array(labels) == label  # labels 기반
-        if mask.sum() > 0:  # 해당 라벨이 있는지 확인
+        mask = np.array(labels) == label
+        if mask.sum() > 0:
             plt.scatter(orig_2d[mask, 0], orig_2d[mask, 1], 
                        c=[colors[i]], label=f"{label[:12]}... ({orig_counts[label]})", 
                        alpha=0.7, s=15)
@@ -318,8 +349,8 @@ def compare_embeddings_by_labels(original_emb, projected_emb, labels, projected_
     # 투영된 임베딩
     plt.subplot(1, 2, 2)
     for i, label in enumerate(top_labels):
-        mask = np.array(projected_labels) == label  # projected_labels 기반
-        if mask.sum() > 0:  # 해당 라벨이 있는지 확인
+        mask = np.array(projected_labels) == label
+        if mask.sum() > 0:
             plt.scatter(proj_2d[mask, 0], proj_2d[mask, 1], 
                        c=[colors[i]], label=f"{label[:12]}... ({proj_counts[label]})", 
                        alpha=0.7, s=15)
@@ -331,7 +362,7 @@ def compare_embeddings_by_labels(original_emb, projected_emb, labels, projected_
     plt.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    filename = 'label_comparison.png'
+    filename = 'viz/label_comparison.png'
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
     
@@ -508,7 +539,7 @@ class ProjectionHead(nn.Module):
     def forward(self, x):
         return F.normalize(self.net(x), p=2, dim=1)
 
-def train_model(embeddings, labels, epochs=100, batch_size=64):
+def train_model(embeddings, labels, epochs=10, batch_size=64):
     """모델 학습"""
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
@@ -595,10 +626,6 @@ def train_model(embeddings, labels, epochs=100, batch_size=64):
             
             total_loss += loss.item()
             n_batches += 1
-            
-            # 디버그 출력
-            if batch_num == 0 and epoch % 20 == 0:
-                print(f"  Batch 0: loss={loss.item():.4f}, grad_norm={grad_norm:.4f}")
         
         scheduler.step()
         
@@ -610,38 +637,48 @@ def train_model(embeddings, labels, epochs=100, batch_size=64):
                 torch.save({'model': model.state_dict(), 'sim_dict': sim_dict}, 
                           'model/best_model.pth')
             
-            if epoch % 20 == 0:
+            if epoch % 5 == 0:
                 print(f'Epoch {epoch}, Loss: {avg_loss:.4f}, Batches: {n_batches}')
         else:
             print(f'Epoch {epoch}: No valid batches')
     
     return model, sim_dict
 
-def build_db(proj_emb, reports, labels, item_ids, db_path="./medical_db"):
-    """ChromaDB 구축"""
+def build_db(proj_emb, reports, labels, item_ids, db_path="./medical_db", batch_size=5000):
+    """ChromaDB 구축 (배치 처리) - 기존 DB 완전 교체"""
     if torch.is_tensor(proj_emb):
         proj_emb = proj_emb.cpu().numpy()
     
+    # 기존 DB 디렉토리 완전 삭제
+    import shutil
+    if os.path.exists(db_path):
+        shutil.rmtree(db_path)
+        print(f"Removed existing database: {db_path}")
+    
     client = chromadb.PersistentClient(path=db_path)
-    
-    try:
-        client.delete_collection("medical_images")
-    except:
-        pass
-    
     collection = client.create_collection("medical_images", 
                                         metadata={"hnsw:space": "cosine"})
     
-    collection.add(
-        embeddings=proj_emb.tolist(),
-        documents=reports,
-        ids=[f"{item_ids[i]}_{labels[i]}" for i in range(len(proj_emb))],
-        metadatas=[{"label": labels[i], "item_id": item_ids[i]} for i in range(len(proj_emb))]
-    )
+    total_samples = len(proj_emb)
+    print(f"Adding {total_samples} embeddings in batches of {batch_size}")
+    
+    # 배치 단위로 추가
+    for start_idx in range(0, total_samples, batch_size):
+        end_idx = min(start_idx + batch_size, total_samples)
+        
+        print(f"Adding batch {start_idx//batch_size + 1}: samples {start_idx}-{end_idx-1}")
+        
+        collection.add(
+            embeddings=proj_emb[start_idx:end_idx].tolist(),
+            documents=reports[start_idx:end_idx],
+            ids=[f"{item_ids[i]}_{i}" for i in range(start_idx, end_idx)],
+            metadatas=[{"label": labels[i], "item_id": str(item_ids[i])} 
+                      for i in range(start_idx, end_idx)]
+        )
     
     print(f"Database built: {db_path}")
+    print(f"Stored {total_samples} embeddings with labels")
     return db_path
-
 
 def compare_embeddings_by_organs(original_emb, projected_emb, labels, projected_labels=None):
     """장기별 임베딩 비교 (원본 vs 투영)"""
@@ -712,7 +749,7 @@ def compare_embeddings_by_organs(original_emb, projected_emb, labels, projected_
     plt.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    filename = 'organ_comparison.png'
+    filename = 'viz/organ_comparison.png'
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
     
@@ -795,31 +832,14 @@ def compare_embeddings_by_labels(original_emb, projected_emb, labels, projected_
     plt.grid(True, alpha=0.3)
     
     plt.tight_layout()
-    filename = 'label_comparison.png'
+    filename = 'viz/label_comparison.png'
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
     
     print(f"Saved label comparison: {filename}")
     return filename
 
-def filter_outliers_by_label(proj_emb, labels, reports, item_ids, filter_strength=1.5):
-    """
-    라벨별 중심점 기준 아웃라이어 필터링
-    
-    Args:
-        proj_emb: 투영된 임베딩 (torch.Tensor or numpy.ndarray)
-        labels: 라벨 리스트
-        reports: 리포트 리스트  
-        item_ids: 아이템 ID 리스트
-        filter_strength: 필터링 강도 (높을수록 더 많이 제거)
-                        1.0 = 1 std, 1.5 = 1.5 std, 2.0 = 2 std
-    
-    Returns:
-        filtered_emb, filtered_reports, filtered_labels, filtered_ids, stats
-    """
-    import numpy as np
-    from sklearn.metrics.pairwise import cosine_distances
-    from collections import defaultdict
+def filter_outliers_by_label(proj_emb, labels, reports, item_ids, filter_strength=0.5):
     
     # 텐서를 numpy로 변환
     if torch.is_tensor(proj_emb):
@@ -931,49 +951,32 @@ def main():
         return
     
     # 유사도 매트릭스 시각화
-    matrix, sample_labels = visualize_similarity_matrix(labels, sample_size=10)
+    # matrix, sample_labels = visualize_similarity_matrix(labels, sample_size=10)
     
     # 모델 학습
     print("Training model...")
     model, sim_dict = train_model(embeddings, labels)
-    
-    if model is None:
-        print("Training failed")
-        return
     
     # 변환
     model.eval()
     device = next(model.parameters()).device
     with torch.no_grad():
         transformed = model(embeddings.to(device))
-    
-    # 원본 vs 투영 비교 (기존 방식)
-    organ_comp_file = compare_embeddings_by_organs(embeddings, transformed, labels)
-    label_comp_file = compare_embeddings_by_labels(embeddings, transformed, labels)
 
     # 필터링
     filtered, filtered_reports, filtered_labels, filtered_ids = filter_outliers_by_label(
         transformed, labels, reports, item_ids)
 
-    # 변환된 vs 필터링된 비교 - 네 번째 파라미터로 filtered_labels 전달
-    organ_filtered_file = compare_embeddings_by_organs(
-        transformed, filtered, labels, filtered_labels)
-    label_filtered_file = compare_embeddings_by_labels(
-        transformed, filtered, labels, filtered_labels)
-
-    # DB 구축
-    # db_path = build_db(filtered, filtered_reports, filtererd_labels, filtered_ids)
-    
     # 모델 저장
+    print(f"  Model: semantic_model.pth")
     torch.save({'model': model.state_dict(), 'sim_dict': sim_dict}, 
               'model/semantic_model.pth')
-    
-    print(f"\nComplete!")
-    print(f"  Model: semantic_model.pth")
-    # print(f"  DB: {db_path}")
-    print(f"  Similarity matrix: similarity_matrix.png")
-    print(f"  Organ comparison: {organ_comp_file}")
-    print(f"  Label comparison: {label_comp_file}")
+
+    # DB 구축
+    save_chroma_db = False
+    if save_chroma_db: 
+        db_path = build_db(filtered, filtered_reports, filtered_labels, filtered_ids)
+        print(f"  DB: {db_path}")
 
 if __name__ == "__main__":
     main()

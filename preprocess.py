@@ -24,7 +24,6 @@ def fix_procedure_typos(procedure):
     
     procedure_fixes = {
         "olonoscopic mucosal resection": "colonoscopic mucosal resection",
-        "colonoscopic submucosal dissection": "colonoscopic submucosal dissection",
         "  colonoscopic submucosal dissection": "colonoscopic submucosal dissection",
         "ccolonoscopic mucosal resection": "colonoscopic mucosal resection", 
         "sono-guided mammotome biopsy": "mammotome biopsy",

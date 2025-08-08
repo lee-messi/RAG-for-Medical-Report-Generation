@@ -4,19 +4,13 @@ import chromadb
 import torch.nn as nn
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from torch.utils.data import DataLoader, Dataset
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from PIL import Image
-import openslide
 import warnings
 import json
-import pandas as pd
 from pathlib import Path
 import threading
 import gc
-import os
 from tqdm import tqdm
-import random
 warnings.filterwarnings("ignore")
 
 def clear_gpu_memory():
@@ -43,116 +37,46 @@ class ProjectionHead(nn.Module):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, 256),
-            nn.BatchNorm1d(256),  # Missing in inference code
+            nn.BatchNorm1d(256),
             nn.ReLU(),
-            nn.Dropout(0.2),      # Was 0.1, should be 0.2
-            nn.Linear(256, output_dim)  # Was hidden_dim, should be 256
+            nn.Dropout(0.2),
+            nn.Linear(256, output_dim)
         )
     
     def forward(self, x):
         return F.normalize(self.net(x), p=2, dim=1)
 
-class SimilarityAnalyzer:
-    def __init__(self, db_path="./medical_db", model_path="./clustering_projection_model.pth"):
-        self.client = chromadb.PersistentClient(path=db_path)
-        self.collection = self.client.get_collection("medical_images")
-        print(f"Loaded DB: {self.collection.count()} cases")
-        
-        # Load projection model
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.projection_model = ProjectionHead(768).to(self.device)
-        checkpoint = torch.load(model_path, map_location=self.device)
-        self.projection_model.load_state_dict(checkpoint['model'])  # Extract 'model' key
-        self.projection_model.eval()
-        print(f"Loaded projection model on {self.device}")
-        
-    def load_embedding(self, filename):
-        csv_path = Path("../data") / f"{filename.replace('.tiff', '')}.csv"
-        df = pd.read_csv(csv_path, header=None)
-        return df.iloc[1].values.astype(np.float32)
-        
-    def project_embedding(self, raw_embedding):
-        """Project 768-dim embedding to 256-dim using trained model"""
-        with torch.no_grad():
-            embedding_tensor = torch.tensor(raw_embedding, dtype=torch.float32).unsqueeze(0).to(self.device)
-            projected = self.projection_model(embedding_tensor)
-            return projected.cpu().numpy().flatten()
-        
-    def get_all_similarities(self, query_embedding):
-        total_count = self.collection.count()
-        
-        results = self.collection.query(
-            query_embeddings=[query_embedding.tolist()],
-            n_results=total_count,
-            include=["distances"]
-        )
-        
-        distances = np.array(results['distances'][0])
-        similarities = 1 - distances
-        
-        return similarities
-
-class InMemoryTileDataset(Dataset):
-    def __init__(self, tiles_data, transform=None):
-        self.tiles_data = tiles_data
-        self.transform = transform
+def load_embeddings_dict(npz_dir):
+    """Load embeddings from NPZ files in directory into dictionary"""
+    embeddings_dict = {}
+    npz_dir = Path(npz_dir)
     
-    def __len__(self):
-        return len(self.tiles_data)
+    for npz_file in npz_dir.glob("*.npz"):
+        filename = npz_file.stem
+        try:
+            data = np.load(npz_file)
+            embedding_key = list(data.keys())[0]
+            embedding = data[embedding_key].astype(np.float32)
+            embeddings_dict[filename] = embedding
+        except Exception as e:
+            print(f"Error loading {npz_file}: {e}")
     
-    def __getitem__(self, idx):
-        tile_array, coords = self.tiles_data[idx]
-        
-        if tile_array.dtype != np.uint8:
-            tile_array = (tile_array * 255).astype(np.uint8)
-        
-        image = Image.fromarray(tile_array, 'RGB')
-        
-        if self.transform:
-            image = self.transform(image)
-        
-        return {
-            'img': image,
-            'coords': torch.tensor(coords, dtype=torch.long)
-        }
-
-def extract_tiles_in_memory(slide_path, tile_size=224, level=0):
-    slide = openslide.OpenSlide(slide_path)
-    level_dimensions = slide.level_dimensions[level]
-    level_downsample = slide.level_downsamples[level]
-    step_size = int(tile_size * 0.9)
-    tiles_data = []
-    
-    for y in range(0, level_dimensions[1] - tile_size, step_size):
-        for x in range(0, level_dimensions[0] - tile_size, step_size):
-            tile_region = slide.read_region(
-                (int(x * level_downsample), int(y * level_downsample)), 
-                level, 
-                (tile_size, tile_size)
-            )
-            tile_rgb = tile_region.convert('RGB')
-            tile_array = np.array(tile_rgb)
-            
-            if np.mean(tile_array) <= 200:
-                tiles_data.append((tile_array, (x, y)))
-    
-    slide.close()
-    return tiles_data
+    print(f"Loaded {len(embeddings_dict)} embeddings from {npz_dir}")
+    return embeddings_dict
 
 class MultiGPUMedicalInference:
-    def __init__(self, db_path="./medical_db", model_path="./clustering_projection_model.pth", num_gpus=None):
-        # Clear memory before initialization
+    def __init__(self, db_path, model_path, embeddings_dict, num_gpus=None):
         full_cleanup()
         
-        self.db_path = db_path
         self.num_gpus = num_gpus or torch.cuda.device_count()
         self.models = {}
         self.tokenizers = {}
+        self.embeddings_dict = embeddings_dict
         self.lock = threading.Lock()
         
         print(f"Initializing with {self.num_gpus} GPUs")
         
-        # Load database first (shared across all workers)
+        # Load database
         self.client = chromadb.PersistentClient(path=db_path)
         self.collection = self.client.get_collection("medical_images")
         print(f"Loaded database with {self.collection.count()} medical cases")
@@ -161,25 +85,23 @@ class MultiGPUMedicalInference:
         self.projection_device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.projection_model = ProjectionHead(768).to(self.projection_device)
         checkpoint = torch.load(model_path, map_location=self.projection_device)
-        self.projection_model.load_state_dict(checkpoint['model'])  # Extract 'model' key
+        self.projection_model.load_state_dict(checkpoint['model'])
         self.projection_model.eval()
         print(f"Loaded projection model on {self.projection_device}")
-        
-        # Load models on each GPU with progress bar
+
+        # Load models on each GPU
         for gpu_id in tqdm(range(self.num_gpus), desc="Loading models"):
             self._load_model_on_gpu(gpu_id)
-    
+
     def _load_model_on_gpu(self, gpu_id):
         """Load model on specific GPU with memory management"""
         device = f'cuda:{gpu_id}'
         print(f"Loading LLM on {device}...")
         
-        # Clear specific GPU memory before loading
         with torch.cuda.device(gpu_id):
             torch.cuda.empty_cache()
         
         tokenizer = AutoTokenizer.from_pretrained("../Qwen3-8B")
-        
         model = AutoModelForCausalLM.from_pretrained(
             "../Qwen3-8B",
             device_map={"": device},
@@ -189,8 +111,6 @@ class MultiGPUMedicalInference:
         
         self.tokenizers[gpu_id] = tokenizer
         self.models[gpu_id] = model
-        
-        # Clear CPU memory after loading
         clear_cpu_memory()
     
     def cleanup_models(self):
@@ -204,26 +124,14 @@ class MultiGPUMedicalInference:
         self.models.clear()
         self.tokenizers.clear()
         
-        # Clean up projection model
         if hasattr(self, 'projection_model'):
             del self.projection_model
         
-        # Close database connection
         if hasattr(self, 'client'):
             del self.client
             del self.collection
         
         full_cleanup()
-    
-    def load_embedding(self, filename):
-        """Load embedding from CSV file"""
-        csv_path = Path("../data") / f"{filename.replace('.tiff', '')}.csv"
-        if not csv_path.exists():
-            raise FileNotFoundError(f"Embedding file not found: {csv_path}")
-        
-        df = pd.read_csv(csv_path, header=None)
-        embedding = df.iloc[1].values.astype(np.float32)
-        return embedding
     
     def project_embedding(self, raw_embedding):
         """Project 768-dim embedding to 256-dim using trained model"""
@@ -245,38 +153,25 @@ class MultiGPUMedicalInference:
         
         distances = np.array(results['distances'][0])
         similarities = 1 - distances
-        
         return similarities
     
     def get_dynamic_k(self, query_embedding, min_k=1, max_k=10, start_check=1):
-        """
-        Dynamically determine k based on similarity gaps
-        
-        Args:
-            query_embedding: Query embedding vector
-            min_k: Minimum number of cases to use
-            max_k: Maximum number of cases to use  
-            start_check: Start checking gaps from this position (default=3)
-        """
-        # Get all similarities (sorted by similarity)
+        """Dynamically determine k based on similarity gaps"""
         similarities = self.get_all_similarities(query_embedding)
-        similarities = np.sort(similarities)[::-1]  # Descending order
+        similarities = np.sort(similarities)[::-1]
         
-        # Calculate threshold (standard deviation of all similarities)
-        # threshold = np.std(similarities) * 0.10
         threshold = 0.0010
         
-        # Start from start_check and look for significant gaps
         for i in range(start_check-1, min(len(similarities)-1, max_k-1)):
             gap = similarities[i] - similarities[i+1]
             if gap > threshold:
-                return i + 1  # Return k (i+1 because i is 0-indexed)
+                return i + 1
         
-        return max_k  # If no significant gap found, use max_k
+        return max_k
     
     def search_similar_cases(self, query_embedding, k=3):
         """Find similar cases in database"""
-        k = int(k)  # Ensure k is Python int
+        k = int(k)
         with self.lock:
             results = self.collection.query(
                 query_embeddings=[query_embedding.tolist()],
@@ -593,12 +488,8 @@ class MultiGPUMedicalInference:
         device = f'cuda:{gpu_id}'
         model = self.models[gpu_id]
         tokenizer = self.tokenizers[gpu_id]
-        
-        inputs = tokenizer(prompt, return_tensors="pt").to(device)
 
-        messages = [
-            {"role": "user", "content": prompt}
-        ]
+        messages = [{"role": "user", "content": prompt}]
         text = tokenizer.apply_chat_template(
             messages,
             tokenize=False,
@@ -608,13 +499,9 @@ class MultiGPUMedicalInference:
         model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
         
         with torch.no_grad():
-            generated_ids = model.generate(
-                **model_inputs,
-                max_new_tokens=8192
-            )
+            generated_ids = model.generate(**model_inputs, max_new_tokens=8192)
             output_ids = generated_ids[0][len(model_inputs.input_ids[0]):].tolist() 
 
-        # parsing thinking content
         try: 
             index = len(output_ids) - output_ids[::-1].index(151668)
         except ValueError:
@@ -623,7 +510,6 @@ class MultiGPUMedicalInference:
         thinking_content = tokenizer.decode(output_ids[:index], skip_special_tokens=True).strip("\n")
         content = tokenizer.decode(output_ids[index:], skip_special_tokens=True).strip("\n")
         
-        # Clear intermediate tensors
         del model_inputs, output_ids
         torch.cuda.empty_cache()
         
@@ -632,21 +518,15 @@ class MultiGPUMedicalInference:
     def process_single_file(self, filename, gpu_id):
         """Process a single file with dynamic k selection"""
         try:
-            # Load and project embedding
-            raw_embedding = self.load_embedding(filename)
+            raw_embedding = self.embeddings_dict[filename]
             projected_embedding = self.project_embedding(raw_embedding)
             
-            # Determine dynamic k
             k = self.get_dynamic_k(projected_embedding)
-            
-            # Search with dynamic k
             similar_reports, distances = self.search_similar_cases(projected_embedding, k=k)
             
-            # Generate report
             if k == 1 or k == 2: 
                 report = similar_reports[0]
             else:
-                # Generate report using LLM synthesis
                 report = self.generate_report(similar_reports, distances, gpu_id)
             
             print('-----------------------')
@@ -654,18 +534,11 @@ class MultiGPUMedicalInference:
             print(f"Report: {report}")
             print('-----------------------')
             
-            return {
-                "id": filename,
-                "report": report
-            }
+            return {"id": filename, "report": report, "k_used": k}
             
         except Exception as e:
             print(f"Error processing {filename}: {e}")
-            return {
-                "id": filename,
-                "report": "Error: Unable to generate report",
-                "k_used": 0
-            }
+            return {"id": filename, "report": "Error: Unable to generate report", "k_used": 0}
     
     def process_batch_parallel(self, filenames, max_workers=None):
         """Process all test files in parallel across GPUs with dynamic k"""
@@ -681,7 +554,6 @@ class MultiGPUMedicalInference:
                 future = executor.submit(self.process_single_file, filename, gpu_id)
                 future_to_filename[future] = filename
             
-            # Use tqdm for progress tracking
             with tqdm(total=len(filenames), desc="Processing files") as pbar:
                 for future in as_completed(future_to_filename):
                     filename = future_to_filename[future]
@@ -691,32 +563,32 @@ class MultiGPUMedicalInference:
                         pbar.set_postfix({"Current": f"{filename} (k={result.get('k_used', 'N/A')})"})
                     except Exception as e:
                         print(f"Error with {filename}: {e}")
-                        results.append({
-                            "id": filename,
-                            "report": "Error: Processing failed",
-                            "k_used": 0
-                        })
+                        results.append({"id": filename, "report": "Error: Processing failed", "k_used": 0})
                     pbar.update(1)
         
         return results
 
 def main():
-    # Initial cleanup
     full_cleanup()
-    
-    # Load test filenames
-    with open("./test_filenames.txt", "r") as f:
-        test_filenames = [line.strip() for line in f.readlines()]
-    
-    print(f"\nProcessing {len(test_filenames)} files with dynamic k selection")
 
+    # Configuration - set once
+    db_path = "./medical_db"
+    model_path = "model/semantic_model.pth"
+    npz_dir = "../../reg2025/phase1_vectors"
+    
     inference = None
     try:
         print(f"\nUsing multi-GPU processing with {torch.cuda.device_count()} GPUs")
-        inference = MultiGPUMedicalInference(model_path="./clustering_projection_model.pth")
         
-        # Process with dynamic k values
-        results = inference.process_batch_parallel(test_filenames)
+        # Load embeddings once
+        embeddings_dict = load_embeddings_dict(npz_dir)
+        filenames = list(embeddings_dict.keys())
+        
+        # Initialize inference system
+        inference = MultiGPUMedicalInference(db_path, model_path, embeddings_dict)
+        
+        # Process files
+        results = inference.process_batch_parallel(filenames)
         
         # Analyze k distribution
         k_values = [r.get('k_used', 0) for r in results if r.get('k_used', 0) > 0]
@@ -738,11 +610,8 @@ def main():
         raise
     
     finally:
-        # Cleanup models
         if inference:
             inference.cleanup_models()
-        
-        # Final cleanup
         full_cleanup()
 
 if __name__ == "__main__":
