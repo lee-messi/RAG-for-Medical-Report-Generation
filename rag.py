@@ -303,92 +303,161 @@ def main():
 
     # Configuration
     MODE = "train"  # Change to "train" or "test"
-    npz_dir = "../../reg2025/gigapath_vectors"
+    RANDOM = False  # Add random parameter
+    npz_dir = "../../train_vectors"
     RANDOM_SEED = 4211  # Change this seed as needed
     
     db_path = "./medical_db"
     model_path = "model/semantic_model.pth"
-    test_txt = "test_filenames.txt"
+    test_txt = "eval/test_list.txt"
     prompt_path = "prompt.txt"
+    output_filename = f"eval/json/submission.json"
     
     inference = None
     try:
         print(f"Running in {MODE} mode with {torch.cuda.device_count()} GPUs")
         
         if MODE == "train":
-            # Set random seed
-            random.seed(RANDOM_SEED)
-            print(f"Using random seed: {RANDOM_SEED}")
-            
-            # Get all IDs from ChromaDB
-            client = chromadb.PersistentClient(path=db_path)
-            collection = client.get_collection("medical_images")
-            all_data = collection.get(include=["embeddings"])
-            all_ids = all_data['ids']
-            all_embeddings = all_data['embeddings']
-            print(f"Found {len(all_ids)} entries in ChromaDB")
-            
-            # Debug: Print first 10 keys to inspect structure
-            print("First 10 ChromaDB keys:")
-            for i, key in enumerate(all_ids[:10]):
-                print(f"  {i+1}: {key}")
-            
-            # Filter IDs that contain 'macenko_original'
-            macenko_ids = [id_str for id_str in all_ids if 'macenko_original' in id_str]
-            print(f"Found {len(macenko_ids)} entries with 'macenko_original'")
-            
-            # Randomly sample 100 from these IDs
-            sampled_ids_raw = random.sample(macenko_ids, min(100, len(macenko_ids)))
-            sampled_ids = [id_str.replace('_macenko_original', '') for id_str in sampled_ids_raw]
-            print(f"Randomly sampled {len(sampled_ids)} IDs with 'macenko_original'")
-            
-            # Create a temporary ChromaDB copy without the sampled entries
-            import tempfile
-            import shutil
-            temp_db_path = tempfile.mkdtemp(prefix="temp_medical_db_")
-            shutil.copytree(db_path, temp_db_path, dirs_exist_ok=True)
-            print(f"Created temporary ChromaDB copy at: {temp_db_path}")
-            
-            # Remove entries from the temporary ChromaDB copy
-            temp_client = chromadb.PersistentClient(path=temp_db_path)
-            temp_collection = temp_client.get_collection("medical_images")
-            
-            # Find all IDs that contain any of the sampled base filenames
-            ids_to_remove = []
-            for id_str in all_ids:
-                for sampled_base in sampled_ids:
-                    if sampled_base in id_str:
-                        ids_to_remove.append(id_str)
-                        break
-            
-            print(f"Removing {len(ids_to_remove)} entries from temporary ChromaDB to avoid data leakage")
-            print(f"Count before deletion: {temp_collection.count()}")
-            print(f"Sample of IDs to delete: {ids_to_remove[:5]}")
-            
-            if ids_to_remove:
-                temp_collection.delete(ids=ids_to_remove)
-                print(f"Successfully removed {len(ids_to_remove)} entries from temporary copy")
-            
-            print(f"Temporary ChromaDB now has {temp_collection.count()} entries")
-            
-            del temp_client, temp_collection
-            del client, collection
-            
-            # Update db_path to use the temporary copy
-            db_path = temp_db_path
-            
-            # Get embeddings for sampled IDs from ChromaDB data
-            embeddings_dict = {}
-            
-            for i, id_str in enumerate(all_ids):
-                if id_str in sampled_ids_raw:  # Use original sampled IDs with _macenko_original
-                    filename = id_str.replace('_macenko_original', '').replace('.tiff', '')
-                    embeddings_dict[filename] = np.array(all_embeddings[i], dtype=np.float32)
-            
-            filenames = list(embeddings_dict.keys())
-            print(f"Loaded {len(embeddings_dict)} embeddings from ChromaDB")
-            need_projection = False  # Already projected in ChromaDB
-            skip_projection = True
+            if RANDOM:
+                # Set random seed
+                random.seed(RANDOM_SEED)
+                print(f"Using random seed: {RANDOM_SEED}")
+                
+                # Get all IDs from ChromaDB
+                client = chromadb.PersistentClient(path=db_path)
+                collection = client.get_collection("medical_images")
+                all_data = collection.get(include=["embeddings"])
+                all_ids = all_data['ids']
+                all_embeddings = all_data['embeddings']
+                print(f"Found {len(all_ids)} entries in ChromaDB")
+                
+                # Debug: Print first 10 keys to inspect structure
+                print("First 10 ChromaDB keys:")
+                for i, key in enumerate(all_ids[:10]):
+                    print(f"  {i+1}: {key}")
+                
+                # Filter IDs that contain 'macenko_original'
+                macenko_ids = [id_str for id_str in all_ids if 'macenko_original' in id_str]
+                print(f"Found {len(macenko_ids)} entries with 'macenko_original'")
+                
+                # Randomly sample 100 from these IDs
+                sampled_ids_raw = random.sample(macenko_ids, min(100, len(macenko_ids)))
+                sampled_ids = [id_str.replace('_macenko_original', '') for id_str in sampled_ids_raw]
+                print(f"Randomly sampled {len(sampled_ids)} IDs with 'macenko_original'")
+                
+                # Create a temporary ChromaDB copy without the sampled entries
+                import tempfile
+                import shutil
+                temp_db_path = tempfile.mkdtemp(prefix="temp_medical_db_")
+                shutil.copytree(db_path, temp_db_path, dirs_exist_ok=True)
+                print(f"Created temporary ChromaDB copy at: {temp_db_path}")
+                
+                # Remove entries from the temporary ChromaDB copy
+                temp_client = chromadb.PersistentClient(path=temp_db_path)
+                temp_collection = temp_client.get_collection("medical_images")
+                
+                # Find all IDs that contain any of the sampled base filenames
+                ids_to_remove = []
+                for id_str in all_ids:
+                    for sampled_base in sampled_ids:
+                        if sampled_base in id_str:
+                            ids_to_remove.append(id_str)
+                            break
+                
+                print(f"Removing {len(ids_to_remove)} entries from temporary ChromaDB to avoid data leakage")
+                print(f"Count before deletion: {temp_collection.count()}")
+                print(f"Sample of IDs to delete: {ids_to_remove[:5]}")
+                
+                if ids_to_remove:
+                    temp_collection.delete(ids=ids_to_remove)
+                    print(f"Successfully removed {len(ids_to_remove)} entries from temporary copy")
+                
+                print(f"Temporary ChromaDB now has {temp_collection.count()} entries")
+                
+                del temp_client, temp_collection
+                del client, collection
+                
+                # Update db_path to use the temporary copy
+                db_path = temp_db_path
+                
+                # Get embeddings for sampled IDs from ChromaDB data
+                embeddings_dict = {}
+                
+                for i, id_str in enumerate(all_ids):
+                    if id_str in sampled_ids_raw:  # Use original sampled IDs with _macenko_original
+                        filename = id_str.replace('_macenko_original', '').replace('.tiff', '')
+                        embeddings_dict[filename] = np.array(all_embeddings[i], dtype=np.float32)
+                
+                filenames = list(embeddings_dict.keys())
+                print(f"Loaded {len(embeddings_dict)} embeddings from ChromaDB")
+                need_projection = False  # Already projected in ChromaDB
+                skip_projection = True
+                
+            else:
+                # Use test_list.txt for filenames
+                with open(test_txt, 'r') as f:
+                    filenames = [line.strip() for line in f if line.strip()]
+                
+                # Get all IDs from ChromaDB
+                client = chromadb.PersistentClient(path=db_path)
+                collection = client.get_collection("medical_images")
+                all_data = collection.get(include=["embeddings"])
+                all_ids = all_data['ids']
+                all_embeddings = all_data['embeddings']
+                print(f"Found {len(all_ids)} entries in ChromaDB")
+                
+                # Create sampled_ids_raw from filenames in test_list.txt
+                sampled_ids_raw = [f"{filename}_macenko_original" for filename in filenames if f"{filename}_macenko_original" in all_ids]
+                sampled_ids = filenames
+                print(f"Using {len(sampled_ids)} filenames from {test_txt}")
+                
+                # Create a temporary ChromaDB copy without the sampled entries
+                import tempfile
+                import shutil
+                temp_db_path = tempfile.mkdtemp(prefix="temp_medical_db_")
+                shutil.copytree(db_path, temp_db_path, dirs_exist_ok=True)
+                print(f"Created temporary ChromaDB copy at: {temp_db_path}")
+                
+                # Remove entries from the temporary ChromaDB copy
+                temp_client = chromadb.PersistentClient(path=temp_db_path)
+                temp_collection = temp_client.get_collection("medical_images")
+                
+                # Find all IDs that contain any of the sampled base filenames
+                ids_to_remove = []
+                for id_str in all_ids:
+                    for sampled_base in sampled_ids:
+                        if sampled_base in id_str:
+                            ids_to_remove.append(id_str)
+                            break
+                
+                print(f"Removing {len(ids_to_remove)} entries from temporary ChromaDB to avoid data leakage")
+                print(f"Count before deletion: {temp_collection.count()}")
+                print(f"Sample of IDs to delete: {ids_to_remove[:5]}")
+                
+                if ids_to_remove:
+                    temp_collection.delete(ids=ids_to_remove)
+                    print(f"Successfully removed {len(ids_to_remove)} entries from temporary copy")
+                
+                print(f"Temporary ChromaDB now has {temp_collection.count()} entries")
+                
+                del temp_client, temp_collection
+                del client, collection
+                
+                # Update db_path to use the temporary copy
+                db_path = temp_db_path
+                
+                # Get embeddings for sampled IDs from ChromaDB data
+                embeddings_dict = {}
+                
+                for i, id_str in enumerate(all_ids):
+                    if id_str in sampled_ids_raw:  # Use original sampled IDs with _macenko_original
+                        filename = id_str.replace('_macenko_original', '').replace('.tiff', '')
+                        embeddings_dict[filename] = np.array(all_embeddings[i], dtype=np.float32)
+                
+                filenames = list(embeddings_dict.keys())
+                print(f"Loaded {len(embeddings_dict)} embeddings from ChromaDB")
+                need_projection = False  # Already projected in ChromaDB
+                skip_projection = True
             
         elif MODE == "test":
             # Load all embeddings from test directory
@@ -416,7 +485,6 @@ def main():
             print(f"  Std k: {np.std(k_values):.2f}")
         
         # Save results
-        output_filename = f"submission.json"
         with open(output_filename, "w") as f:
             json.dump(results, f, indent=2)
         

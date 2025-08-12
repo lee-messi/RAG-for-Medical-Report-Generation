@@ -1,0 +1,938 @@
+[
+  {
+    "id": "PIT_01_10247_01.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  Non-invasive papillary urothelial carcinoma, low grade\n\n  Note) The specimen does not include muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n  Non-invasive papillary urothelial carcinoma, low grade\n\n  Note) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 0.8823529411764706,
+      "bleu": 0.7692307692307693,
+      "key": 1.0,
+      "embedding": 0.9950448274612427,
+      "ranking_score": 0.9462510047994588
+    }
+  },
+  {
+    "id": "PIT_01_08322_01.tiff",
+    "ground_truth_report": "Stomach, endoscopic biopsy;\n  Chronic gastritis\n   with intestinal metaplasia",
+    "predicted_report": "Stomach, endoscopic biopsy;\n  Chronic gastritis\n  with intestinal metaplasia",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.0000007152557373,
+      "ranking_score": 1.000000214576721
+    }
+  },
+  {
+    "id": "PIT_01_07971_01.tiff",
+    "ground_truth_report": "Stomach, endoscopic biopsy;\n  Poorly cohesive carcinoma, not otherwise specified",
+    "predicted_report": "Stomach, endoscopic biopsy;\n  Adenocarcinoma, poorly differentiated with poorly cohesive carcinoma component",
+    "scores": {
+      "rouge": 0.5,
+      "bleu": 0.0,
+      "key": 0.4,
+      "embedding": 0.9547204971313477,
+      "ranking_score": 0.5214161491394043
+    }
+  },
+  {
+    "id": "PIT_04_00500_01.tiff",
+    "ground_truth_report": "Stomach, endoscopic biopsy;\n  Chronic gastritis with lymphoid aggregate",
+    "predicted_report": "Stomach, endoscopic biopsy;\n   Chronic gastritis",
+    "scores": {
+      "rouge": 0.7692307692307693,
+      "bleu": 1.0,
+      "key": 0.6,
+      "embedding": 0.9546972513198853,
+      "ranking_score": 0.7917937907805809
+    }
+  },
+  {
+    "id": "PIT_01_08550_01.tiff",
+    "ground_truth_report": "Stomach, endoscopic biopsy;\n  Adenocarcinoma, poorly differentiated",
+    "predicted_report": "Stomach, endoscopic biopsy;\n  Adenocarcinoma, poorly differentiated with poorly cohesive carcinoma component",
+    "scores": {
+      "rouge": 0.7058823529411764,
+      "bleu": 0.375,
+      "key": 0.75,
+      "embedding": 0.9673597812652588,
+      "ranking_score": 0.7523402873207541
+    }
+  },
+  {
+    "id": "PIT_01_05597_01.tiff",
+    "ground_truth_report": "Lung, biopsy;\n  Adenocarcinoma",
+    "predicted_report": "Lung, biopsy;\nAdenocarcinoma",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 0.0,
+      "key": 1.0,
+      "embedding": 0.9999995231628418,
+      "ranking_score": 0.8499998569488525
+    }
+  },
+  {
+    "id": "PIT_01_04544_01.tiff",
+    "ground_truth_report": "Colon, colonoscopic biopsy;\n  Neuroendocrine tumor, grade 1",
+    "predicted_report": "Rectum, colonoscopic biopsy;\n  Neuroendocrine tumor, grade 1",
+    "scores": {
+      "rouge": 0.8571428571428571,
+      "bleu": 0.75,
+      "key": 0.5,
+      "embedding": 0.986046314239502,
+      "ranking_score": 0.7368853228432791
+    }
+  },
+  {
+    "id": "PIT_01_04083_01.tiff",
+    "ground_truth_report": "Colon, colonoscopic biopsy;\n  Adenocarcinoma, poorly differentiated",
+    "predicted_report": "Stomach, endoscopic biopsy;\n  Adenocarcinoma, moderately differentiated",
+    "scores": {
+      "rouge": 0.5,
+      "bleu": 0.0,
+      "key": 0.2,
+      "embedding": 0.9377498626708984,
+      "ranking_score": 0.43632495880126954
+    }
+  },
+  {
+    "id": "PIT_01_03253_01.tiff",
+    "ground_truth_report": "Uterine cervix, biopsy;\n  Low-grade squamous intraepithelial lesion (LSIL; CIN 1)",
+    "predicted_report": "Uterine cervix, colposcopic biopsy;\n  Low-grade squamous intraepithelial lesion (LSIL; CIN 1)",
+    "scores": {
+      "rouge": 0.9523809523809523,
+      "bleu": 0.625,
+      "key": 0.6666666666666666,
+      "embedding": 0.9935636520385742,
+      "ranking_score": 0.8013429051353818
+    }
+  },
+  {
+    "id": "PIT_01_00552_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  Invasive carcinoma of no special type, grade II (Tubule formation: 3, Nuclear grade: 2, Mitoses: 1)",
+    "predicted_report": "Breast, sono-guided core biopsy;\n  1. Invasive carcinoma of no special type, grade I (Tubule formation: 3, Nuclear grade: 1, Mitoses: 1)\n  2. Ductal carcinoma in situ",
+    "scores": {
+      "rouge": 0.7826086956521738,
+      "bleu": 0.30434782608695654,
+      "key": 0.6,
+      "embedding": 0.9783356189727783,
+      "ranking_score": 0.696544163952703
+    }
+  },
+  {
+    "id": "PIT_01_03086_01.tiff",
+    "ground_truth_report": "Uterine cervix, colposcopic biopsy;\n  Invasive squamous cell carcinoma",
+    "predicted_report": "Uterine cervix, colposcopic biopsy;\n  Invasive squamous cell carcinoma",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.000000238418579,
+      "ranking_score": 1.0000000715255737
+    }
+  },
+  {
+    "id": "PIT_01_09021_01.tiff",
+    "ground_truth_report": "Stomach, endoscopic biopsy;\n  Chronic gastritis\n   with foveolar epithelial hyperplasia",
+    "predicted_report": "Stomach, endoscopic biopsy;\n  Chronic gastritis\n  with intestinal metaplasia",
+    "scores": {
+      "rouge": 0.7058823529411765,
+      "bleu": 0.6,
+      "key": 0.6,
+      "embedding": 0.961663007736206,
+      "ranking_score": 0.7243812552620382
+    }
+  },
+  {
+    "id": "PIT_01_10284_01.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  Non-invasive papillary urothelial carcinoma, low grade\n\n  Note) The specimen includes muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n   Non-invasive papillary urothelial carcinoma, low grade\n\n\\n\\n   Note) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 0.9696969696969697,
+      "bleu": 0.7142857142857143,
+      "key": 0.875,
+      "embedding": 0.9665627479553223,
+      "ranking_score": 0.8925662269839992
+    }
+  },
+  {
+    "id": "PIT_01_10049_02.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  1. Invasive urothelial carcinoma, with involvement of subepithelial connective tissue\n  2. Urothelial carcinoma in situ\n\n  Note) The specimen includes muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n  Invasive urothelial carcinoma with \n involvement of subepithelial connective tissue\n\n  Note) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 0.8181818181818181,
+      "bleu": 0.4375,
+      "key": 0.6666666666666666,
+      "embedding": 0.9749184846878052,
+      "ranking_score": 0.7474944848002809
+    }
+  },
+  {
+    "id": "PIT_01_09020_01.tiff",
+    "ground_truth_report": "Stomach, endoscopic biopsy;\n  Extranodal marginal zone B cell lymphoma of MALT type",
+    "predicted_report": "Stomach, endoscopic biopsy;\n  Extranodal marginal zone B cell lymphoma of MALT type",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.000000238418579,
+      "ranking_score": 1.0000000715255737
+    }
+  },
+  {
+    "id": "PIT_01_05999_01.tiff",
+    "ground_truth_report": "Prostate, biopsy;\n  Acinar adenocarcinoma, Gleason's score 7 (4+3), grade group 3 (Gleason pattern 4: 70%), tumor volume: 90%",
+    "predicted_report": "Prostate, biopsy;\n  Acinar adenocarcinoma, Gleason's score 7 (3+4), grade group 2 (Gleason pattern 4: 10%), tumor volume: 90%",
+    "scores": {
+      "rouge": 0.8333333333333334,
+      "bleu": 0.26666666666666666,
+      "key": 0.75,
+      "embedding": 0.9981951713562012,
+      "ranking_score": 0.7644585514068605
+    }
+  },
+  {
+    "id": "PIT_01_02800_01.tiff",
+    "ground_truth_report": "Breast, biopsy;\n  Papillary neoplasm",
+    "predicted_report": "Breast, biopsy;\n  Papillary neoplasm",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.0000007152557373,
+      "ranking_score": 1.000000214576721
+    }
+  },
+  {
+    "id": "PIT_01_02172_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  Ductal carcinoma in situ\n  - Type: Cribriform\n  - Nuclear grade: Low\n  - Necrosis: Absent",
+    "predicted_report": "Breast, sono-guided core biopsy;\n  Ductal carcinoma in situ\n  - Type: Cribriform\n  - Nuclear grade: Low\n  - Necrosis: Absent",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 0.9999997615814209,
+      "ranking_score": 0.9999999284744262
+    }
+  },
+  {
+    "id": "PIT_01_04109_01.tiff",
+    "ground_truth_report": "Colon, colonoscopic biopsy;\n  Adenocarcinoma, moderately differentiated",
+    "predicted_report": "Rectum, colonoscopic biopsy;\nAdenocarcinoma, well differentiated",
+    "scores": {
+      "rouge": 0.6666666666666666,
+      "bleu": 0.0,
+      "key": 0.5,
+      "embedding": 0.9745373725891113,
+      "ranking_score": 0.5923612117767334
+    }
+  },
+  {
+    "id": "PIT_01_03192_01.tiff",
+    "ground_truth_report": "Uterine cervix, colposcopic biopsy;\n  Low-grade squamous intraepithelial lesion (LSIL; CIN 1)",
+    "predicted_report": "Uterine cervix, colposcopic biopsy;\n  Low-grade squamous intraepithelial lesion (LSIL; CIN 1)",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.000000238418579,
+      "ranking_score": 1.0000000715255737
+    }
+  },
+  {
+    "id": "PIT_01_10234_01.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  Non-invasive papillary urothelial carcinoma, low grade\n\n  Note) The specimen includes muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n  Non-invasive papillary urothelial carcinoma, low grade\n\n  Note) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 0.9999998807907104,
+      "ranking_score": 0.999999964237213
+    }
+  },
+  {
+    "id": "PIT_01_03867_01.tiff",
+    "ground_truth_report": "Colon, colonoscopic biopsy;\n  Adenocarcinoma, poorly differentiated",
+    "predicted_report": "Colon, colonoscopic biopsy;\n  Mucinous carcinoma",
+    "scores": {
+      "rouge": 0.5454545454545454,
+      "bleu": 0.0,
+      "key": 0.5,
+      "embedding": 0.964932918548584,
+      "ranking_score": 0.571298057382757
+    }
+  },
+  {
+    "id": "PIT_01_10018_02.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  1. Invasive urothelial carcinoma, with involvement of subepithelial connective tissue\n  2. Urothelial carcinoma in situ\n\n  Note) The specimen includes muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n  1. Invasive urothelial carcinoma with \n involvement of subepithelial connective tissue\n  2. Urothelial carcinoma in situ\n\n  Note) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 0.96,
+      "bleu": 0.8181818181818182,
+      "key": 1.0,
+      "embedding": 0.9990017414093018,
+      "ranking_score": 0.9664277951500633
+    }
+  },
+  {
+    "id": "PIT_01_07894_01.tiff",
+    "ground_truth_report": "Stomach, endoscopic biopsy;\n  Chronic gastritis",
+    "predicted_report": "Stomach, endoscopic biopsy;\nTubular adenoma with low grade dysplasia",
+    "scores": {
+      "rouge": 0.42857142857142855,
+      "bleu": 0.0,
+      "key": 0.4,
+      "embedding": 0.8918030261993408,
+      "ranking_score": 0.49182662214551653
+    }
+  },
+  {
+    "id": "PIT_01_08378_01.tiff",
+    "ground_truth_report": "Stomach, endoscopic biopsy;\n  Adenocarcinoma, poorly differentiated with poorly cohesive carcinoma component",
+    "predicted_report": "Stomach, endoscopic biopsy;\n  Adenocarcinoma, poorly differentiated",
+    "scores": {
+      "rouge": 0.7058823529411764,
+      "bleu": 1.0,
+      "key": 0.75,
+      "embedding": 0.9673597812652588,
+      "ranking_score": 0.8460902873207541
+    }
+  },
+  {
+    "id": "PIT_01_07500_01.tiff",
+    "ground_truth_report": "Prostate, biopsy;\n  Acinar adenocarcinoma, Gleason's score 9 (4+5), grade group 5, tumor volume: 70%",
+    "predicted_report": "Prostate, biopsy;\n  Acinar adenocarcinoma, Gleason's score 8 (4+4), grade group 4, tumor volume: 50%",
+    "scores": {
+      "rouge": 0.7142857142857143,
+      "bleu": 0.2727272727272727,
+      "key": 0.5,
+      "embedding": 0.9962301254272461,
+      "ranking_score": 0.6469209856801219
+    }
+  },
+  {
+    "id": "PIT_01_01244_01.tiff",
+    "ground_truth_report": "Breast, core biopsy;\n  Fibroepithelial tumor, favor fibroadenoma",
+    "predicted_report": "Breast, core biopsy;\n  Fibroepithelial tumor",
+    "scores": {
+      "rouge": 0.6666666666666666,
+      "bleu": 0.5,
+      "key": 0.75,
+      "embedding": 0.9620590209960938,
+      "ranking_score": 0.7636177062988281
+    }
+  },
+  {
+    "id": "PIT_01_04432_01.tiff",
+    "ground_truth_report": "Colon, colonoscopic biopsy;\n  Chronic nonspecific inflammation",
+    "predicted_report": "Colon, colonoscopic biopsy;\n  Chronic nonspecific inflammation",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.000000238418579,
+      "ranking_score": 1.0000000715255737
+    }
+  },
+  {
+    "id": "PIT_01_00394_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  Papillary neoplasm",
+    "predicted_report": "Breast, sono-guided core biopsy;\n  Papillary neoplasm",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.0,
+      "ranking_score": 1.0
+    }
+  },
+  {
+    "id": "PIT_01_10054_01.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  Invasive urothelial carcinoma, with involvement of subepithelial connective tissue\n\n  Note) The specimen includes muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n   Invasive urothelial carcinoma with involvement of subepithelial connective tissue\n\nNote) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 0.9473684210526315,
+      "bleu": 0.75,
+      "key": 0.8888888888888888,
+      "embedding": 0.9981986284255981,
+      "ranking_score": 0.9096204072411298
+    }
+  },
+  {
+    "id": "PIT_01_01832_01.tiff",
+    "ground_truth_report": "Breast, core biopsy;\n  1. Ductal carcinoma in situ\n  - Type: Cribriform\n  - Nuclear grade: Intermediate\n  - Necrosis: Absent\n  2. Microcalcification",
+    "predicted_report": "Breast, core biopsy;\n  1. Ductal carcinoma in situ\n  - Type: Micropapillary\n  - Nuclear grade: High\n  - Necrosis: Present (Focal)\n  2. Microcalcification",
+    "scores": {
+      "rouge": 0.8292682926829269,
+      "bleu": 0.3888888888888889,
+      "key": 0.5714285714285714,
+      "embedding": 0.9819940328598022,
+      "ranking_score": 0.7058932156651416
+    }
+  },
+  {
+    "id": "PIT_01_07281_01.tiff",
+    "ground_truth_report": "Prostate, biopsy;\n  No evidence of tumor",
+    "predicted_report": "Prostate, biopsy;\n  No tumor present",
+    "scores": {
+      "rouge": 0.7272727272727272,
+      "bleu": 0.0,
+      "key": 0.5,
+      "embedding": 0.9475576877593994,
+      "ranking_score": 0.5933582154187289
+    }
+  },
+  {
+    "id": "PIT_01_07061_01.tiff",
+    "ground_truth_report": "Prostate, biopsy;\n  No evidence of tumor",
+    "predicted_report": "Prostate, biopsy;\n  No tumor present",
+    "scores": {
+      "rouge": 0.7272727272727272,
+      "bleu": 0.0,
+      "key": 0.5,
+      "embedding": 0.9475576877593994,
+      "ranking_score": 0.5933582154187289
+    }
+  },
+  {
+    "id": "PIT_01_06998_01.tiff",
+    "ground_truth_report": "Prostate, biopsy;\n  Acinar adenocarcinoma, Gleason's score 6 (3+3), grade group 1, tumor volume:  20%",
+    "predicted_report": "Prostate, biopsy;\n  Acinar adenocarcinoma, Gleason's score 7 (3+4), grade group 2 (Gleason pattern 4: 40%), tumor volume: 10%",
+    "scores": {
+      "rouge": 0.6250000000000001,
+      "bleu": 0.2,
+      "key": 0.4444444444444444,
+      "embedding": 0.9866900444030762,
+      "ranking_score": 0.5975347910987006
+    }
+  },
+  {
+    "id": "PIT_01_09914_01.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  No evidence of tumor\n\n  Note) The specimen does not include muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n  No tumor present\n\n  Note) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 0.7586206896551724,
+      "bleu": 0.2,
+      "key": 0.7142857142857143,
+      "embedding": 0.9721704721450806,
+      "ranking_score": 0.7211585308060857
+    }
+  },
+  {
+    "id": "PIT_01_03487_01.tiff",
+    "ground_truth_report": "Uterine cervix, colposcopic biopsy;\n  Low-grade squamous intraepithelial lesion (LSIL; CIN 1)",
+    "predicted_report": "Uterine cervix, punch biopsy;\n  Low-grade squamous intraepithelial lesion (LSIL; CIN 1)",
+    "scores": {
+      "rouge": 0.9090909090909091,
+      "bleu": 0.625,
+      "key": 0.6666666666666666,
+      "embedding": 0.9939093589782715,
+      "ranking_score": 0.7949531107237844
+    }
+  },
+  {
+    "id": "PIT_01_01517_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  Fibroadenomatoid change",
+    "predicted_report": "Breast, biopsy;\n  Fibroepithelial tumor",
+    "scores": {
+      "rouge": 0.4,
+      "bleu": 0.0,
+      "key": 0.16666666666666666,
+      "embedding": 0.8805966377258301,
+      "ranking_score": 0.3908456579844157
+    }
+  },
+  {
+    "id": "PIT_01_01081_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  Invasive carcinoma of no special type, grade III (Tubule formation: 3, Nuclear grade: 3, Mitoses: 2)",
+    "predicted_report": "Breast, sono-guided core biopsy;\n  Invasive carcinoma of no special type, grade III (Tubule formation: 3, Nuclear grade: 3, Mitoses: 2)",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.000000238418579,
+      "ranking_score": 1.0000000715255737
+    }
+  },
+  {
+    "id": "PIT_01_08978_01.tiff",
+    "ground_truth_report": "Stomach, endoscopic biopsy;\n  Tubular adenoma with low grade dysplasia",
+    "predicted_report": "Stomach, endoscopic biopsy;\n  Tubular adenoma with low grade dysplasia",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 0.9999995231628418,
+      "ranking_score": 0.9999998569488524
+    }
+  },
+  {
+    "id": "PIT_01_10375_01.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  Non-invasive papillary urothelial carcinoma, high grade\n\n  Note) The specimen includes muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n  1. Non-invasive papillary urothelial carcinoma, high grade\n  2. Urothelial carcinoma in situ\n\n  Note) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 0.8421052631578948,
+      "bleu": 0.3684210526315789,
+      "key": 0.6,
+      "embedding": 0.9667069911956787,
+      "ranking_score": 0.7115910447271246
+    }
+  },
+  {
+    "id": "PIT_01_00059_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  1. Papillary neoplasm\n  2. Microcalcification",
+    "predicted_report": "Breast, sono-guided core biopsy;\n  1. Papillary neoplasm\n  2. Microcalcification",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.0000004768371582,
+      "ranking_score": 1.0000001430511474
+    }
+  },
+  {
+    "id": "PIT_01_00700_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  Invasive carcinoma of no special type, grade II (Tubule formation: 3, Nuclear grade: 2, Mitoses: 1)",
+    "predicted_report": "Breast, sono-guided core biopsy;\n  Invasive carcinoma of no special type, grade I (Tubule formation: 3, Nuclear grade: 1, Mitoses: 1)",
+    "scores": {
+      "rouge": 0.9,
+      "bleu": 0.5882352941176471,
+      "key": 0.75,
+      "embedding": 0.9965676069259644,
+      "ranking_score": 0.8222055761954364
+    }
+  },
+  {
+    "id": "PIT_01_00256_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  Granulomatous lobular mastitis",
+    "predicted_report": "Breast, biopsy;\n  Foreign body reaction",
+    "scores": {
+      "rouge": 0.3333333333333333,
+      "bleu": 0.0,
+      "key": 0.2,
+      "embedding": 0.8366999626159668,
+      "ranking_score": 0.38100998878479003
+    }
+  },
+  {
+    "id": "PIT_01_00999_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  Ductal carcinoma in situ\n  - Type: Solid\n  - Nuclear grade: High\n  - Necrosis: Present (Comedo-type)",
+    "predicted_report": "Breast, sono-guided core biopsy;\n  Ductal carcinoma in situ\n  - Type: Solid\n  - Nuclear grade: Intermediate\n  - Necrosis: Absent",
+    "scores": {
+      "rouge": 0.8648648648648649,
+      "bleu": 0.7333333333333333,
+      "key": 0.6666666666666666,
+      "embedding": 0.9798805713653564,
+      "ranking_score": 0.8003605678060033
+    }
+  },
+  {
+    "id": "PIT_01_05467_01.tiff",
+    "ground_truth_report": "Lung, biopsy;\n  Adenocarcinoma",
+    "predicted_report": "Lung, biopsy;\n  Adenocarcinoma",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 0.0,
+      "key": 1.0,
+      "embedding": 0.9999995231628418,
+      "ranking_score": 0.8499998569488525
+    }
+  },
+  {
+    "id": "PIT_01_09908_01.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  No evidence of tumor\n\n  Note) The specimen includes muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n  No tumor present\n\n  Note) The specimen does not include muscle proper.",
+    "scores": {
+      "rouge": 0.7586206896551724,
+      "bleu": 0.16666666666666666,
+      "key": 0.7142857142857143,
+      "embedding": 0.9772191047668457,
+      "ranking_score": 0.7176731205926152
+    }
+  },
+  {
+    "id": "PIT_01_10238_01.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  Non-invasive papillary urothelial carcinoma, low grade\n\n  Note) The specimen does not include muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n  Non-invasive papillary urothelial carcinoma, low grade\n\n  Note) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 0.8823529411764706,
+      "bleu": 0.7692307692307693,
+      "key": 1.0,
+      "embedding": 0.9950448274612427,
+      "ranking_score": 0.9462510047994588
+    }
+  },
+  {
+    "id": "PIT_01_03314_01.tiff",
+    "ground_truth_report": "Uterine cervix, biopsy;\n  High-grade squamous intraepithelial lesion (HSIL; CIN 2)",
+    "predicted_report": "Uterine cervix, colposcopic biopsy;\n  Low-grade squamous intraepithelial lesion (LSIL; CIN 1)",
+    "scores": {
+      "rouge": 0.6666666666666666,
+      "bleu": 0.0,
+      "key": 0.1111111111111111,
+      "embedding": 0.9876770973205566,
+      "ranking_score": 0.4407475736406114
+    }
+  },
+  {
+    "id": "PIT_01_04853_01.tiff",
+    "ground_truth_report": "Lung, biopsy;\n  Adenocarcinoma",
+    "predicted_report": "Lung, biopsy;\n  Adenocarcinoma",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 0.0,
+      "key": 1.0,
+      "embedding": 0.9999995231628418,
+      "ranking_score": 0.8499998569488525
+    }
+  },
+  {
+    "id": "PIT_01_03054_01.tiff",
+    "ground_truth_report": "Uterine cervix, colposcopic biopsy;\n  High-grade squamous intraepithelial lesion (HSIL; CIN 2)",
+    "predicted_report": "Uterine cervix, colposcopic biopsy;\n  Low-grade squamous intraepithelial lesion (LSIL; CIN 1)",
+    "scores": {
+      "rouge": 0.7272727272727273,
+      "bleu": 0.125,
+      "key": 0.25,
+      "embedding": 0.9956297874450684,
+      "ranking_score": 0.5265298453244296
+    }
+  },
+  {
+    "id": "PIT_02_00062_01.tiff",
+    "ground_truth_report": "Lung, biopsy;\n  Non-small cell carcinoma, favor squamous cell carcinoma",
+    "predicted_report": "Lung, biopsy;\n  Squamous cell carcinoma",
+    "scores": {
+      "rouge": 0.7142857142857143,
+      "bleu": 0.0,
+      "key": 0.75,
+      "embedding": 0.9499647617340088,
+      "ranking_score": 0.6921322856630598
+    }
+  },
+  {
+    "id": "PIT_01_04285_01.tiff",
+    "ground_truth_report": "Colon, colonoscopic biopsy;\n  Adenocarcinoma, moderately differentiated",
+    "predicted_report": "Colon, colonoscopic biopsy;\n  Adenocarcinoma, moderately differentiated",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.0,
+      "ranking_score": 1.0
+    }
+  },
+  {
+    "id": "PIT_01_05297_01.tiff",
+    "ground_truth_report": "Lung, biopsy;\n  Adenocarcinoma",
+    "predicted_report": "Lung, biopsy;\n  Adenocarcinoma",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 0.0,
+      "key": 1.0,
+      "embedding": 0.9999995231628418,
+      "ranking_score": 0.8499998569488525
+    }
+  },
+  {
+    "id": "PIT_01_07422_01.tiff",
+    "ground_truth_report": "Prostate, biopsy;\n  No evidence of tumor",
+    "predicted_report": "Prostate, biopsy;\n  No tumor present",
+    "scores": {
+      "rouge": 0.7272727272727272,
+      "bleu": 0.0,
+      "key": 0.5,
+      "embedding": 0.9475576877593994,
+      "ranking_score": 0.5933582154187289
+    }
+  },
+  {
+    "id": "PIT_01_04541_01.tiff",
+    "ground_truth_report": "Colon, colonoscopic biopsy;\n  Chronic nonspecific inflammation",
+    "predicted_report": "Rectum, colonoscopic biopsy;\n  Chronic nonspecific inflammation",
+    "scores": {
+      "rouge": 0.8333333333333334,
+      "bleu": 0.6666666666666666,
+      "key": 0.6,
+      "embedding": 0.9818049669265747,
+      "ranking_score": 0.7595414900779724
+    }
+  },
+  {
+    "id": "PIT_01_01041_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  Invasive carcinoma of no special type, grade II (Tubule formation: 3, Nuclear grade: 2, Mitoses: 1)",
+    "predicted_report": "Breast, sono-guided core biopsy;\n  Invasive carcinoma of no special type, grade II (Tubule formation: 3, Nuclear grade: 2, Mitoses: 1)",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 0.9999998807907104,
+      "ranking_score": 0.999999964237213
+    }
+  },
+  {
+    "id": "PIT_01_10002_01.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  Invasive urothelial carcinoma, with involvement of subepithelial connective tissue\n\n  Note) The specimen includes muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n  Invasive urothelial carcinoma with \n involvement of subepithelial connective tissue\n\n  Note) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 0.9473684210526315,
+      "bleu": 0.75,
+      "key": 1.0,
+      "embedding": 0.9981986284255981,
+      "ranking_score": 0.9540648516855741
+    }
+  },
+  {
+    "id": "PIT_01_01061_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  Ductal carcinoma in situ\n  - Type: Solid\n  - Nuclear grade: High\n  - Necrosis: Present (Focal)",
+    "predicted_report": "Breast, biopsy;\nDuctal carcinoma in situ\n  - Type: Solid\n  - Nuclear grade: High\n  - Necrosis: Absent",
+    "scores": {
+      "rouge": 0.8571428571428572,
+      "bleu": 0.8461538461538461,
+      "key": 0.6666666666666666,
+      "embedding": 0.9719328880310059,
+      "ranking_score": 0.8137410385704738
+    }
+  },
+  {
+    "id": "PIT_01_04378_01.tiff",
+    "ground_truth_report": "Colon, colonoscopic biopsy;\n  Tubulovillous adenoma with high grade dysplasia",
+    "predicted_report": "Colon, colonoscopic biopsy;\n  Tubulovillous adenoma with high grade dysplasia",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.000000238418579,
+      "ranking_score": 1.0000000715255737
+    }
+  },
+  {
+    "id": "PIT_01_05860_01.tiff",
+    "ground_truth_report": "Prostate, biopsy;\n  Acinar adenocarcinoma, Gleason's score 7 (4+3), grade group 3 (Gleason pattern 4: 70%), tumor volume: 25%",
+    "predicted_report": "Prostate, biopsy;\n  Acinar adenocarcinoma, Gleason's score 6 (3+3), grade group 1, tumor volume: 10%",
+    "scores": {
+      "rouge": 0.6250000000000001,
+      "bleu": 0.2727272727272727,
+      "key": 0.4444444444444444,
+      "embedding": 0.9879876375198364,
+      "ranking_score": 0.6088331599428196
+    }
+  },
+  {
+    "id": "PIT_01_05085_01.tiff",
+    "ground_truth_report": "Lung, biopsy;\n  Squamous cell carcinoma",
+    "predicted_report": "Lung, biopsy;\n  Squamous cell carcinoma",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.000000238418579,
+      "ranking_score": 1.0000000715255737
+    }
+  },
+  {
+    "id": "PIT_01_10307_01.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  Non-invasive papillary urothelial carcinoma, low grade\n\n  Note) The specimen includes muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n  Invasive urothelial carcinoma with \n involvement of muscle proper\n\n  Note) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 0.6470588235294118,
+      "bleu": 0.26666666666666666,
+      "key": 0.5555555555555556,
+      "embedding": 0.9630017280578613,
+      "ranking_score": 0.6481815641689923
+    }
+  },
+  {
+    "id": "PIT_01_03389_01.tiff",
+    "ground_truth_report": "Uterine cervix, colposcopic biopsy;\n  Low-grade squamous intraepithelial lesion (LSIL; CIN 1)",
+    "predicted_report": "Uterine cervix, colposcopic biopsy;\n  Low-grade squamous intraepithelial lesion (LSIL; CIN 1)",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.000000238418579,
+      "ranking_score": 1.0000000715255737
+    }
+  },
+  {
+    "id": "PIT_01_03546_01.tiff",
+    "ground_truth_report": "Uterine cervix, colposcopic biopsy;\n  High-grade squamous intraepithelial lesion (HSIL; CIN 3)",
+    "predicted_report": "Uterine cervix, colposcopic biopsy;\n  High-grade squamous intraepithelial lesion (HSIL; CIN 3) with glandular involvement",
+    "scores": {
+      "rouge": 0.88,
+      "bleu": 0.7272727272727273,
+      "key": 0.7142857142857143,
+      "embedding": 0.9865318536758423,
+      "ranking_score": 0.8227647509079474
+    }
+  },
+  {
+    "id": "PIT_01_10583_01.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  Urothelial carcinoma in situ\n\n  Note) The specimen includes muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n  1. Invasive urothelial carcinoma with \n involvement of subepithelial connective tissue\n  2. Urothelial carcinoma in situ\n  3. Chronic granulomatous inflammation with foreign body reaction\n\n  Note) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 0.5957446808510638,
+      "bleu": 0.16666666666666666,
+      "key": 0.42857142857142855,
+      "embedding": 0.9210293292999268,
+      "ranking_score": 0.5620990723462089
+    }
+  },
+  {
+    "id": "PIT_01_03501_01.tiff",
+    "ground_truth_report": "Uterine cervix, colposcopic biopsy;\n  Low-grade squamous intraepithelial lesion (LSIL; CIN 1)",
+    "predicted_report": "Uterine cervix, punch biopsy;\n  High-grade squamous intraepithelial lesion (HSIL; CIN 2)",
+    "scores": {
+      "rouge": 0.6363636363636364,
+      "bleu": 0.0,
+      "key": 0.1111111111111111,
+      "embedding": 0.9888801574707031,
+      "ranking_score": 0.43656303714020084
+    }
+  },
+  {
+    "id": "PIT_01_07705_01.tiff",
+    "ground_truth_report": "Stomach, endoscopic biopsy;\n  Adenocarcinoma, moderately differentiated with poorly cohesive carcinoma component",
+    "predicted_report": "Stomach, endoscopic biopsy;\n  Adenocarcinoma, poorly differentiated",
+    "scores": {
+      "rouge": 0.5882352941176471,
+      "bleu": 0.3333333333333333,
+      "key": 0.75,
+      "embedding": 0.9652119874954224,
+      "ranking_score": 0.7277988903662738
+    }
+  },
+  {
+    "id": "PIT_01_02542_01.tiff",
+    "ground_truth_report": "Breast, biopsy;\n  Fibroadenomatoid change",
+    "predicted_report": "Breast, biopsy;\n  Usual ductal hyperplasia",
+    "scores": {
+      "rouge": 0.4444444444444445,
+      "bleu": 0.0,
+      "key": 0.4,
+      "embedding": 0.9133979082107544,
+      "ranking_score": 0.5006860391298931
+    }
+  },
+  {
+    "id": "PIT_01_00729_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  Invasive carcinoma of no special type, grade II (Tubule formation: 3, Nuclear grade: 2, Mitoses: 1)",
+    "predicted_report": "Breast, sono-guided core biopsy;\n  Invasive carcinoma of no special type, grade II (Tubule formation: 3, Nuclear grade: 2, Mitoses: 1)",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 0.9999998807907104,
+      "ranking_score": 0.999999964237213
+    }
+  },
+  {
+    "id": "PIT_01_07770_01.tiff",
+    "ground_truth_report": "Stomach, endoscopic biopsy;\n  Poorly cohesive carcinoma, signet ring cell type",
+    "predicted_report": "Stomach, endoscopic biopsy;\n  Adenocarcinoma, poorly differentiated",
+    "scores": {
+      "rouge": 0.5,
+      "bleu": 0.0,
+      "key": 0.4,
+      "embedding": 0.9405314922332764,
+      "ranking_score": 0.517159447669983
+    }
+  },
+  {
+    "id": "PIT_01_02578_01.tiff",
+    "ground_truth_report": "Breast, biopsy;\n  Invasive lobular carcinoma",
+    "predicted_report": "Breast, biopsy;\nInvasive lobular carcinoma",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 0.9999995231628418,
+      "ranking_score": 0.9999998569488524
+    }
+  },
+  {
+    "id": "PIT_01_01955_01.tiff",
+    "ground_truth_report": "Breast, core biopsy;\n  Intraductal papilloma",
+    "predicted_report": "Breast, core biopsy;\n  Intraductal papilloma",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.0000007152557373,
+      "ranking_score": 1.000000214576721
+    }
+  },
+  {
+    "id": "PIT_01_05273_01.tiff",
+    "ground_truth_report": "Lung, biopsy;\n  Non-small cell carcinoma, favor adenocarcinoma",
+    "predicted_report": "Lung, biopsy;\n  Non-small cell carcinoma, favor adenocarcinoma",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.0000007152557373,
+      "ranking_score": 1.000000214576721
+    }
+  },
+  {
+    "id": "PIT_01_10486_01.tiff",
+    "ground_truth_report": "Urinary bladder, transurethral resection;\n  Non-invasive papillary urothelial carcinoma, high grade\n\n  Note) The specimen includes muscle proper.",
+    "predicted_report": "Urinary bladder, transurethral resection;\n   Invasive urothelial carcinoma, with involvement of subepithelial connective tissue\n\n\\n\\n   Note) The specimen includes muscle proper.",
+    "scores": {
+      "rouge": 0.6666666666666665,
+      "bleu": 0.23529411764705882,
+      "key": 0.4166666666666667,
+      "embedding": 0.9432449340820312,
+      "ranking_score": 0.5849342645383349
+    }
+  },
+  {
+    "id": "PIT_01_04357_01.tiff",
+    "ground_truth_report": "Colon, colonoscopic biopsy;\n  Adenocarcinoma, well differentiated",
+    "predicted_report": "Colon, colonoscopic biopsy;\n  Adenocarcinoma, well differentiated",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 0.9999997615814209,
+      "ranking_score": 0.9999999284744262
+    }
+  },
+  {
+    "id": "PIT_01_00934_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  1. Invasive carcinoma of no special type, grade I (Tubule formation: 2, Nuclear grade: 2, Mitoses: 1)\n  2. Ductal carcinoma in situ",
+    "predicted_report": "Breast, sono-guided core biopsy;\n  1. Invasive carcinoma of no special type, grade I (Tubule formation: 2, Nuclear grade: 2, Mitoses: 1)\n  2. Ductal carcinoma in situ",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 0.9999997615814209,
+      "ranking_score": 0.9999999284744262
+    }
+  },
+  {
+    "id": "PIT_01_01184_01.tiff",
+    "ground_truth_report": "Breast, sono-guided core biopsy;\n  1. Ductal carcinoma in situ\n  - Type: Cribriform\n  - Nuclear grade: Low\n  - Necrosis: Absent\n  2. Microcalcification",
+    "predicted_report": "Breast, core biopsy;\nDuctal carcinoma in situ\n  - Type: Cribriform\n  - Nuclear grade: Low\n  - Necrosis: Absent",
+    "scores": {
+      "rouge": 0.8947368421052632,
+      "bleu": 0.7857142857142857,
+      "key": 0.6153846153846154,
+      "embedding": 0.9746594429016113,
+      "ranking_score": 0.7906193481972619
+    }
+  },
+  {
+    "id": "PIT_01_04472_01.tiff",
+    "ground_truth_report": "Colon, colonoscopic biopsy;\n  Chronic active colitis",
+    "predicted_report": "Colon, colonoscopic biopsy;\n  Chronic active colitis",
+    "scores": {
+      "rouge": 1.0,
+      "bleu": 1.0,
+      "key": 1.0,
+      "embedding": 1.0,
+      "ranking_score": 1.0
+    }
+  }
+]
