@@ -142,8 +142,9 @@ class REG_Evaluator:
     def evaluate_dummy(self, eval_lists):
         scores = {'rouge': 0, 'bleu': 0, 'key': 0, 'emb': 0}
         
-        pbar = tqdm(eval_lists, total=len(eval_lists))  
-        for ref_text, hyp_text in pbar:
+        # pbar = tqdm(eval_lists, total=len(eval_lists))  
+        # for ref_text, hyp_text in pbar:
+        for ref_text, hyp_text in eval_lists:
             result = self.evaluate_text(ref_text, hyp_text)
             for k in scores:
                 scores[k] += result[k]

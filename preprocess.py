@@ -12,7 +12,8 @@ def fix_organ_typos(organ):
         "stomach": "Stomach", 
         "Cervix": "Uterine cervix",
         "Bladder": "Urinary bladder",
-        "Nipple": "Breast"
+        "Nipple": "Breast",
+        "Rectum": "Colon"
     }
     
     return organ_fixes.get(organ, organ)
@@ -24,15 +25,7 @@ def fix_procedure_typos(procedure):
     
     procedure_fixes = {
         "olonoscopic mucosal resection": "colonoscopic mucosal resection",
-        "  colonoscopic submucosal dissection": "colonoscopic submucosal dissection",
-        "ccolonoscopic mucosal resection": "colonoscopic mucosal resection", 
-        "sono-guided mammotome biopsy": "mammotome biopsy",
-        "encor biopsy": "biopsy",
-        "stereotactic biopsy": "biopsy",
-        "vacuum-assisted biopsy": "biopsy",
-        "frozen biopsy": "biopsy",
-        "polypectomy biopsy": "biopsy",
-        "core-needle biopsy": "core biopsy"
+        "  colonoscopic submucosal dissection": "colonoscopic submucosal dissection"
     }
     
     for typo, fix in procedure_fixes.items():

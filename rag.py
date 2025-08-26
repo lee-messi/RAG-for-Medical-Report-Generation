@@ -250,21 +250,21 @@ class MultiGPUMedicalInference:
             k = self.get_dynamic_k(projected_embedding)
             similar_reports, distances = self.search_similar_cases(projected_embedding, k=k)
             for i, similar_report in enumerate(similar_reports):
-                distance = distances[i]
-                print(f"Similar report {i+1} (Distance: {distance}):\n{similar_report}")
+                print('-' * 115)
+                print(f"{similar_report}")
             
-            if k == 1: 
+            if k == 1 or k == 2: 
                 report = similar_reports[0]
             else:
                 report = self.generate_report(similar_reports, distances, gpu_id)
-            
-            # print(f"File: {filename}, k: {k}")
 
-            print('-' * 150)
+            print('-' * 115)
+            print(' ' * 50 + 'FINAL REPORT')
+            print('-' * 115)
             print(report)
-            print('-' * 150)
+            print('-' * 115)
             
-            return {"id": filename + '.tiff', "report": report}
+            return {"id": filename + '.tiff', "report": report, "k_used": k}
         
         except Exception as e:
             print(f"Error processing {filename}: {e}")
@@ -276,6 +276,7 @@ class MultiGPUMedicalInference:
         
         results = []
         
+        print('-' * 115)
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             future_to_filename = {}
             for i, filename in enumerate(filenames):
@@ -284,7 +285,6 @@ class MultiGPUMedicalInference:
                 future_to_filename[future] = filename
             
             with tqdm(total=len(filenames), desc="Processing files") as pbar:
-                print('-' * 150)
                 for future in as_completed(future_to_filename):
                     filename = future_to_filename[future]
                     try:
@@ -301,15 +301,16 @@ class MultiGPUMedicalInference:
 def main():
     full_cleanup()
 
-    # Configuration
+    # Train/Test Configuration
     MODE = "train"  # Change to "train" or "test"
     RANDOM = False  # Add random parameter
-    npz_dir = "../../train_vectors"
+    test_npz_dir = "../../vectors/gigapath_phase2"
     RANDOM_SEED = 4211  # Change this seed as needed
-    
+
+    test_txt = "eval/test_list.txt"
+
     db_path = "./medical_db"
     model_path = "model/semantic_model.pth"
-    test_txt = "eval/test_list.txt"
     prompt_path = "prompt.txt"
     output_filename = f"eval/json/submission.json"
     
@@ -331,19 +332,14 @@ def main():
                 all_embeddings = all_data['embeddings']
                 print(f"Found {len(all_ids)} entries in ChromaDB")
                 
-                # Debug: Print first 10 keys to inspect structure
-                print("First 10 ChromaDB keys:")
-                for i, key in enumerate(all_ids[:10]):
-                    print(f"  {i+1}: {key}")
-                
-                # Filter IDs that contain 'macenko_original'
-                macenko_ids = [id_str for id_str in all_ids if 'macenko_original' in id_str]
-                print(f"Found {len(macenko_ids)} entries with 'macenko_original'")
+                # Filter IDs that contain 'original'
+                original_ids = [id_str for id_str in all_ids if 'original' in id_str]
+                print(f"Found {len(original_ids)} entries with 'original'")
                 
                 # Randomly sample 100 from these IDs
-                sampled_ids_raw = random.sample(macenko_ids, min(100, len(macenko_ids)))
-                sampled_ids = [id_str.replace('_macenko_original', '') for id_str in sampled_ids_raw]
-                print(f"Randomly sampled {len(sampled_ids)} IDs with 'macenko_original'")
+                sampled_ids_raw = random.sample(original_ids, min(100, len(original_ids)))
+                sampled_ids = [id_str.replace('_original', '') for id_str in sampled_ids_raw]
+                print(f"Randomly sampled {len(sampled_ids)} IDs with 'original'")
                 
                 # Create a temporary ChromaDB copy without the sampled entries
                 import tempfile
@@ -384,8 +380,8 @@ def main():
                 embeddings_dict = {}
                 
                 for i, id_str in enumerate(all_ids):
-                    if id_str in sampled_ids_raw:  # Use original sampled IDs with _macenko_original
-                        filename = id_str.replace('_macenko_original', '').replace('.tiff', '')
+                    if id_str in sampled_ids_raw:  # Use original sampled IDs with _original
+                        filename = id_str.replace('_original', '').replace('.tiff', '')
                         embeddings_dict[filename] = np.array(all_embeddings[i], dtype=np.float32)
                 
                 filenames = list(embeddings_dict.keys())
@@ -407,7 +403,7 @@ def main():
                 print(f"Found {len(all_ids)} entries in ChromaDB")
                 
                 # Create sampled_ids_raw from filenames in test_list.txt
-                sampled_ids_raw = [f"{filename}_macenko_original" for filename in filenames if f"{filename}_macenko_original" in all_ids]
+                sampled_ids_raw = [f"{filename}_original" for filename in filenames if f"{filename}_original" in all_ids]
                 sampled_ids = filenames
                 print(f"Using {len(sampled_ids)} filenames from {test_txt}")
                 
@@ -450,8 +446,8 @@ def main():
                 embeddings_dict = {}
                 
                 for i, id_str in enumerate(all_ids):
-                    if id_str in sampled_ids_raw:  # Use original sampled IDs with _macenko_original
-                        filename = id_str.replace('_macenko_original', '').replace('.tiff', '')
+                    if id_str in sampled_ids_raw:  # Use original sampled IDs with _original
+                        filename = id_str.replace('_original', '').replace('.tiff', '')
                         embeddings_dict[filename] = np.array(all_embeddings[i], dtype=np.float32)
                 
                 filenames = list(embeddings_dict.keys())
@@ -461,7 +457,7 @@ def main():
             
         elif MODE == "test":
             # Load all embeddings from test directory
-            embeddings_dict = load_embeddings_dict(npz_dir)
+            embeddings_dict = load_embeddings_dict(test_npz_dir)
             filenames = list(embeddings_dict.keys())
             need_projection = True  # Raw embeddings need projection  
             skip_projection = False

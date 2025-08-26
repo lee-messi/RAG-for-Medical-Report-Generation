@@ -5,6 +5,3 @@ spacy==3.7.4
 spacy-legacy==3.0.12
 spacy-loggers==1.0.5
 tqdm==4.66.5
-transformers==4.44.1
-numpy==1.24.4
-torch>=2.3
